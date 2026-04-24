@@ -1,5 +1,5 @@
-export type Status = "PENDING" | "IN_PROGRESS" | "COMPLETED";
-export type Priority = "LOW" | "MEDIUM" | "HIGH";
+export type Status = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+export type Priority = 'LOW' | 'MEDIUM' | 'HIGH';
 
 export type DataUser = {
   name: string;
@@ -11,7 +11,7 @@ export type DataProject = {
   id: string;
   name: string;
   description?: string;
-  userId:string
+  userId: string;
 };
 
 export type DataTask = {

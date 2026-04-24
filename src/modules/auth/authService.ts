@@ -1,7 +1,7 @@
-import { prisma } from "../../lib/prisma.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import type { Secret, SignOptions } from "jsonwebtoken";
+import { prisma } from '../../lib/prisma.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import type { Secret, SignOptions } from 'jsonwebtoken';
 
 // tipos
 type LoginDTO = {
@@ -16,8 +16,8 @@ type JwtPayload = {
 // valida env (resolve o erro do TS)
 const JWT_SECRET: Secret = process.env.JWT_SECRET as string;
 
-const JWT_EXPIRES_IN: SignOptions["expiresIn"] =
-  (process.env.JWT_EXPIRES_IN as SignOptions["expiresIn"]) || "1d";
+const JWT_EXPIRES_IN: SignOptions['expiresIn'] =
+  (process.env.JWT_EXPIRES_IN as SignOptions['expiresIn']) || '1d';
 
 export const login = async ({ login, password }: LoginDTO) => {
   const user = await prisma.user.findUnique({
@@ -25,13 +25,13 @@ export const login = async ({ login, password }: LoginDTO) => {
   });
 
   if (!user) {
-    throw new Error("Usuário não encontrado");
+    throw new Error('Usuário não encontrado');
   }
 
   const isValid = await bcrypt.compare(password, user.password);
 
   if (!isValid) {
-    throw new Error("Senha inválida");
+    throw new Error('Senha inválida');
   }
 
   const payload: JwtPayload = {

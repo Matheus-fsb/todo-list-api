@@ -1,5 +1,5 @@
-import type { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import type { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 
 type JwtPayload = {
   userId: string;
@@ -12,7 +12,7 @@ export interface AuthRequest extends Request {
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET não definido");
+  throw new Error('JWT_SECRET não definido');
 }
 
 export const authMiddleware = (
@@ -23,13 +23,13 @@ export const authMiddleware = (
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    return res.status(401).json({ message: "Token não informado" });
+    return res.status(401).json({ message: 'Token não informado' });
   }
 
-  const [scheme, token] = authHeader.split(" ");
+  const [scheme, token] = authHeader.split(' ');
 
-  if (scheme !== "Bearer" || !token) {
-    return res.status(401).json({ message: "Token mal formatado" });
+  if (scheme !== 'Bearer' || !token) {
+    return res.status(401).json({ message: 'Token mal formatado' });
   }
 
   try {
@@ -39,6 +39,6 @@ export const authMiddleware = (
 
     return next();
   } catch {
-    return res.status(401).json({ message: "Token inválido ou expirado" });
+    return res.status(401).json({ message: 'Token inválido ou expirado' });
   }
 };
