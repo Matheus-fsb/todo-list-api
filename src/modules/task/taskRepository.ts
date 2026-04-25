@@ -2,7 +2,16 @@ import { prisma } from '../../lib/prisma.js';
 import type { Task } from '../../generated/prisma/client.js';
 import type { CreateTaskDTO, UpdateTaskDTO } from './taskTypes.js';
 
-export class TaskRepository {
+export interface ITaskRepository {
+  create(data: CreateTaskDTO): Promise<Task>;
+  findById(id: string): Promise<Task | null>;
+  findAll(): Promise<Task[]>;
+  findByProject(projectId: string): Promise<Task[]>;
+  update(id: string, data: UpdateTaskDTO): Promise<Task>;
+  delete(id: string): Promise<Task>;
+}
+
+export class TaskRepository implements ITaskRepository {
   async create(data: CreateTaskDTO): Promise<Task> {
     return prisma.task.create({
       data,

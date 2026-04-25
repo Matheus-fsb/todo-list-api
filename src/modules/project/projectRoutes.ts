@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { ProjectController } from './projectController.js';
+import { makeProjectController } from './projectFactory.js';
 
 const router = Router();
-const controller = new ProjectController();
+const controller = makeProjectController();
 
 router.post('/', controller.create.bind(controller));
 router.get('/user/:userId', controller.findByUser.bind(controller));

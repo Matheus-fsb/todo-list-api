@@ -1,12 +1,21 @@
 import type { Request, Response } from 'express';
-import { UserService } from './userService.js';
+import type { IUserService } from './userService.js';
 
-const userService = new UserService();
+export interface IUserController {
+  create(req: Request, res: Response): Promise<Response>;
+  findAll(req: Request, res: Response): Promise<Response>;
+}
 
-export class UserController {
-  async create(req: Request, res: Response) {
+export class UserController implements UserController {
+  private userService: IUserService;
+
+  constructor(userService: IUserService) {
+    this.userService = userService;
+  }
+
+  async create(req: Request, res: Response): Promise<Response> {
     try {
-      const user = await userService.create(req.body);
+      const user = await this.userService.create(req.body);
       return res.status(201).json(user);
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -16,9 +25,9 @@ export class UserController {
     }
   }
 
-  async findAll(req: Request, res: Response) {
+  async findAll(req: Request, res: Response): Promise<Response> {
     try {
-      const users = await userService.findAll();
+      const users = await this.userService.findAll();
       return res.json(users);
     } catch (error: unknown) {
       if (error instanceof Error) {

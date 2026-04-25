@@ -1,17 +1,26 @@
-import { UserRepository } from './userRepository.js';
 import type { CreateUserDTO, UserResponseDTO } from './userTypes.js';
+import type { IUserRepository } from './userRepository.js';
 
-const userRepository = new UserRepository();
+export interface IUserService {
+  create(data: CreateUserDTO): Promise<UserResponseDTO>;
+  findAll(): Promise<UserResponseDTO[]>;
+}
 
-export class UserService {
+export class UserService implements IUserService {
+  private userRepository: IUserRepository;
+
+  constructor(userRepository: IUserRepository) {
+    this.userRepository = userRepository;
+  }
+
   async create(data: CreateUserDTO): Promise<UserResponseDTO> {
-    const userExists = await userRepository.findByLogin(data.login);
+    const userExists = await this.userRepository.findByLogin(data.login);
 
     if (userExists) {
       throw new Error('User already exists');
     }
 
-    const user = await userRepository.create(data);
+    const user = await this.userRepository.create(data);
 
     return {
       id: user.id,
@@ -21,7 +30,7 @@ export class UserService {
   }
 
   async findAll(): Promise<UserResponseDTO[]> {
-    const users = await userRepository.findAll();
+    const users = await this.userRepository.findAll();
 
     return users.map(user => ({
       id: user.id,

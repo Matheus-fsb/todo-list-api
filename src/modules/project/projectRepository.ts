@@ -2,7 +2,16 @@ import { prisma } from '../../lib/prisma.js';
 import type { Project } from '../../generated/prisma/client.js';
 import type { CreateProjectDTO, UpdateProjectDTO } from './projectTypes.js';
 
-export class ProjectRepository {
+export interface IProjectRepository {
+  create(data: CreateProjectDTO): Promise<Project>;
+  findById(id: string): Promise<Project | null>;
+  findAll(): Promise<Project[]>;
+  findByUser(userId: string): Promise<Project[]>;
+  update(id: string, data: UpdateProjectDTO): Promise<Project>;
+  delete(id: string): Promise<Project>;
+}
+
+export class ProjectRepository implements IProjectRepository {
   async create(data: CreateProjectDTO): Promise<Project> {
     return prisma.project.create({
       data,

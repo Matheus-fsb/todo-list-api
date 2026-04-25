@@ -1,23 +1,25 @@
-import { TaskRepository } from './taskRepository.js';
-import { ProjectRepository } from '../project/projectRepository.js';
+import type { ITaskRepository } from './taskRepository.js';
+import type { IProjectRepository } from '../project/projectRepository.js';
 import type {
   CreateTaskDTO,
   UpdateTaskDTO,
   TaskResponseDTO,
 } from './taskTypes.js';
 
-const taskRepository = new TaskRepository();
-const projectRepository = new ProjectRepository();
-
 export class TaskService {
+  constructor(
+    private taskRepository: ITaskRepository,
+    private projectRepository: IProjectRepository
+  ) {}
+
   async create(data: CreateTaskDTO): Promise<TaskResponseDTO> {
-    const projectExists = await projectRepository.findById(data.projectId);
+    const projectExists = await this.projectRepository.findById(data.projectId);
 
     if (!projectExists) {
       throw new Error('Project not found');
     }
 
-    return taskRepository.create(data);
+    return this.taskRepository.create(data);
   }
 
   async update(id: string, data: UpdateTaskDTO): Promise<TaskResponseDTO> {
@@ -29,14 +31,14 @@ export class TaskService {
       data.completedAt = null;
     }
 
-    return taskRepository.update(id, data);
+    return this.taskRepository.update(id, data);
   }
 
   async findByProject(projectId: string): Promise<TaskResponseDTO[]> {
-    return taskRepository.findByProject(projectId);
+    return this.taskRepository.findByProject(projectId);
   }
 
   async delete(id: string): Promise<void> {
-    await taskRepository.delete(id);
+    await this.taskRepository.delete(id);
   }
 }

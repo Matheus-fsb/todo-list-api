@@ -1,12 +1,17 @@
 import type { Request, Response } from 'express';
-import { ProjectService } from './projectService.js';
+import { type IProjectService } from './projectService.js';
 
-const projectService = new ProjectService();
+export interface IProjectController {
+  create(req: Request, res: Response): Promise<Response>;
+  findByUser(req: Request, res: Response): Promise<Response>;
+}
 
-export class ProjectController {
-  async create(req: Request, res: Response) {
+export class ProjectController implements IProjectController {
+  constructor(private projectService: IProjectService) {}
+
+  async create(req: Request, res: Response): Promise<Response> {
     try {
-      const project = await projectService.create(req.body);
+      const project = await this.projectService.create(req.body);
       return res.status(201).json(project);
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -16,7 +21,7 @@ export class ProjectController {
     }
   }
 
-  async findByUser(req: Request, res: Response) {
+  async findByUser(req: Request, res: Response): Promise<Response> {
     try {
       const { userId } = req.params;
 
@@ -24,7 +29,7 @@ export class ProjectController {
         return res.status(400).json({ message: 'Invalid userId' });
       }
 
-      const projects = await projectService.findByUser(userId);
+      const projects = await this.projectService.findByUser(userId);
       return res.json(projects);
     } catch (error: unknown) {
       if (error instanceof Error) {

@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { TaskController } from './taskController.js';
+import { makeTaskController } from './taskFactory.js';
 
 const router = Router();
-const controller = new TaskController();
+const controller = makeTaskController();
 
 router.post('/', controller.create.bind(controller));
 router.put('/:id', controller.update.bind(controller));

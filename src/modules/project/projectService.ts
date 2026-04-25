@@ -1,24 +1,31 @@
-import { ProjectRepository } from './projectRepository.js';
+import { type IProjectRepository } from './projectRepository.js';
 import type { CreateProjectDTO, ProjectResponseDTO } from './projectTypes.js';
-import { UserRepository } from '../user/userRepository.js';
+import { type IUserRepository } from '../user/userRepository.js';
 
-const projectRepository = new ProjectRepository();
-const userRepository = new UserRepository();
+export interface IProjectService {
+  create(data: CreateProjectDTO): Promise<ProjectResponseDTO>;
+  findByUser(userId: string): Promise<ProjectResponseDTO[]>;
+}
 
-export class ProjectService {
+export class ProjectService implements IProjectService {
+  constructor(
+    private projectRepository: IProjectRepository,
+    private userRepository: IUserRepository
+  ) {}
+
   async create(data: CreateProjectDTO): Promise<ProjectResponseDTO> {
-    const userExists = await userRepository.findById(data.userId);
+    const userExists = await this.userRepository.findById(data.userId);
 
     if (!userExists) {
       throw new Error('User not found');
     }
 
-    const project = await projectRepository.create(data);
+    const project = await this.projectRepository.create(data);
 
     return project;
   }
 
   async findByUser(userId: string): Promise<ProjectResponseDTO[]> {
-    return projectRepository.findByUser(userId);
+    return this.projectRepository.findByUser(userId);
   }
 }

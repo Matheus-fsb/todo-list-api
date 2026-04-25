@@ -2,7 +2,15 @@ import { prisma } from '../../lib/prisma.js';
 import type { User } from '../../generated/prisma/client.js';
 import type { CreateUserDTO, UpdateUserDTO } from './userTypes.js';
 
-export class UserRepository {
+export interface IUserRepository {
+  create(data: CreateUserDTO): Promise<User>;
+  findById(id: string): Promise<User | null>;
+  findByLogin(login: string): Promise<User | null>;
+  findAll(): Promise<User[]>;
+  delete(id: string): Promise<User>;
+}
+
+export class UserRepository implements IUserRepository {
   async create(data: CreateUserDTO): Promise<User> {
     return prisma.user.create({
       data,
