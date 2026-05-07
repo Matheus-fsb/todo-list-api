@@ -38,4 +38,23 @@ export class ProjectController implements IProjectController {
       return res.status(500).json({ message: 'Internal server error' });
     }
   }
+
+  async update(req: Request, res: Response): Promise<Response> {
+    try {
+      const { id } = req.params;
+
+      if (!id || Array.isArray(id)) {
+        return res.status(400).json({ message: 'Invalid id' });
+      }
+
+      const updatedProject = await this.projectService.update(id, req.body);
+      return res.status(200).json(updatedProject);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res.status(400).json({ message: error.message });
+      }
+
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
 }

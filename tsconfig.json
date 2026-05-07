@@ -1,5 +1,5 @@
 {
-  "include": ["src", "env.d.ts"],
+  "include": ["src", "env.d.ts", "tests"],
   "compilerOptions": {
     // File Layout
     // "rootDir": "./src",

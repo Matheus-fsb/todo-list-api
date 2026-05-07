@@ -17,5 +17,6 @@ const projectController = new DependenceFactory(
 
 router.post('/', projectController.create.bind(projectController));
 router.get('/user/:userId', projectController.findByUser.bind(projectController));
+router.patch('/:id', projectController.update.bind(projectController));
 
 export default router;
