@@ -1,8 +1,11 @@
+import type { UserRole } from '../../generated/prisma/client.js';
+
 // Dados para criação de usuário
 export type CreateUserDTO = {
   name: string;
   login: string;
   password: string;
+  role?: UserRole;
 };
 
 // Dados para atualização (campos opcionais)
