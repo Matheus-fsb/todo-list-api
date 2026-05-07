@@ -7,14 +7,13 @@ export interface IUserRepository {
   findById(id: string): Promise<User | null>;
   findByLogin(login: string): Promise<User | null>;
   findAll(): Promise<User[]>;
+  update(id: string, data: UpdateUserDTO): Promise<User>;
   delete(id: string): Promise<User>;
 }
 
 export class UserRepository implements IUserRepository {
   async create(data: CreateUserDTO): Promise<User> {
-    return prisma.user.create({
-      data,
-    });
+    return prisma.user.create({ data });
   }
 
   async findById(id: string): Promise<User | null> {

@@ -7,25 +7,27 @@ export interface IProjectService {
   findByUser(userId: string): Promise<ProjectResponseDTO[]>;
 }
 
+type Dependencies = {
+  projectRepository: IProjectRepository;
+  userRepository: IUserRepository;
+};
+
 export class ProjectService implements IProjectService {
-  constructor(
-    private projectRepository: IProjectRepository,
-    private userRepository: IUserRepository
-  ) {}
+  constructor(private deps: Dependencies) {}
 
   async create(data: CreateProjectDTO): Promise<ProjectResponseDTO> {
-    const userExists = await this.userRepository.findById(data.userId);
+    const userExists = await this.deps.userRepository.findById(data.userId);
 
     if (!userExists) {
       throw new Error('User not found');
     }
 
-    const project = await this.projectRepository.create(data);
+    const project = await this.deps.projectRepository.create(data);
 
     return project;
   }
 
   async findByUser(userId: string): Promise<ProjectResponseDTO[]> {
-    return this.projectRepository.findByUser(userId);
+    return this.deps.projectRepository.findByUser(userId);
   }
 }

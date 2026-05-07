@@ -1,26 +1,40 @@
-import type { CreateUserDTO, UserResponseDTO } from './userTypes.js';
+import bcrypt from 'bcrypt';
+
+import type {
+  CreateUserDTO,
+  UpdateUserDTO,
+  UserResponseDTO,
+} from './userTypes.js';
+
 import type { IUserRepository } from './userRepository.js';
 
 export interface IUserService {
   create(data: CreateUserDTO): Promise<UserResponseDTO>;
   findAll(): Promise<UserResponseDTO[]>;
+  delete(id: string): Promise<UserResponseDTO>;
+  update(id: string, data: UpdateUserDTO): Promise<UserResponseDTO>;
 }
 
-export class UserService implements IUserService {
-  private userRepository: IUserRepository;
+type Dependencies = {
+  userRepository: IUserRepository;
+};
 
-  constructor(userRepository: IUserRepository) {
-    this.userRepository = userRepository;
-  }
+export class UserService implements IUserService {
+  constructor(private deps: Dependencies) {}
 
   async create(data: CreateUserDTO): Promise<UserResponseDTO> {
-    const userExists = await this.userRepository.findByLogin(data.login);
+    const userExists = await this.deps.userRepository.findByLogin(data.login);
 
     if (userExists) {
       throw new Error('User already exists');
     }
 
-    const user = await this.userRepository.create(data);
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    const user = await this.deps.userRepository.create({
+      ...data,
+      password: hashedPassword,
+    });
 
     return {
       id: user.id,
@@ -29,8 +43,48 @@ export class UserService implements IUserService {
     };
   }
 
+  async delete(id: string): Promise<UserResponseDTO> {
+    const deletedUser = await this.deps.userRepository.delete(id);
+
+    return {
+      id: deletedUser.id,
+      name: deletedUser.name,
+      login: deletedUser.login,
+    };
+  }
+
+  async update(id: string, data: UpdateUserDTO): Promise<UserResponseDTO> {
+    const userExists = await this.deps.userRepository.findById(id);
+
+    if (!userExists) {
+      throw new Error('User not found');
+    }
+
+    if (data.login && data.login !== userExists.login) {
+      const loginInUse = await this.deps.userRepository.findByLogin(data.login);
+
+      if (loginInUse) {
+        throw new Error('Login already in use');
+      }
+    }
+
+    const dataToUpdate = { ...data };
+
+    if (data.password) {
+      dataToUpdate.password = await bcrypt.hash(data.password, 10);
+    }
+
+    const updatedUser = await this.deps.userRepository.update(id, dataToUpdate);
+
+    return {
+      id: updatedUser.id,
+      name: updatedUser.name,
+      login: updatedUser.login,
+    };
+  }
+
   async findAll(): Promise<UserResponseDTO[]> {
-    const users = await this.userRepository.findAll();
+    const users = await this.deps.userRepository.findAll();
 
     return users.map(user => ({
       id: user.id,

@@ -8,39 +8,41 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid())
-  name String
-  login String @unique
-  password String 
+  id        String   @id @default(uuid())
+  name      String
+  login     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   projects Project[]
 }
 
 model Project {
-  id String @id @default(uuid())
-  name String
+  id          String   @id @default(uuid())
+  name        String
   description String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   tasks Task[]
 }
 
 model Task {
-  id String @id @default(uuid())
-  title String
+  id          String    @id @default(uuid())
+  title       String
   description String?
-  status Status @default(PENDING)
-  priority Priority?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  status      Status    @default(PENDING)
+  priority    Priority?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   completedAt DateTime?
 
   projectId String
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 enum Status {
@@ -49,8 +51,7 @@ enum Status {
   COMPLETED
 }
 
-enum Priority{
-
+enum Priority {
   LOW
   MEDIUM
   HIGH
