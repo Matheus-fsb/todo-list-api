@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import { createUserSchema, updateUserSchema } from './userSchema.js';
 
 import type {
   CreateUserDTO,
@@ -23,6 +24,8 @@ export class UserService implements IUserService {
   constructor(private deps: Dependencies) {}
 
   async create(data: CreateUserDTO): Promise<UserResponseDTO> {
+    createUserSchema.parse(data)
+
     const userExists = await this.deps.userRepository.findByLogin(data.login);
 
     if (userExists) {
@@ -54,6 +57,8 @@ export class UserService implements IUserService {
   }
 
   async update(id: string, data: UpdateUserDTO): Promise<UserResponseDTO> {
+    updateUserSchema.parse(data);
+
     const userExists = await this.deps.userRepository.findById(id);
 
     if (!userExists) {

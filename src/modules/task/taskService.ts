@@ -7,6 +7,7 @@ import type {
   UpdateTaskDTO,
   TaskResponseDTO,
 } from './taskTypes.js';
+import { createTaskSchema, updateTaskSchema } from './taskSchema.js';
 
 export interface ITaskService {
   create(data: CreateTaskDTO): Promise<TaskResponseDTO>;
@@ -24,6 +25,8 @@ export class TaskService implements ITaskService {
   constructor(private deps: Dependencies) {}
 
   async create(data: CreateTaskDTO): Promise<TaskResponseDTO> {
+    createTaskSchema.parse(data);
+
     const projectExists = await this.deps.projectRepository.findById(
       data.projectId
     );
@@ -36,6 +39,8 @@ export class TaskService implements ITaskService {
   }
 
   async update(id: string, data: UpdateTaskDTO): Promise<TaskResponseDTO> {
+    updateTaskSchema.parse(data)
+
     if (data.status === 'COMPLETED') {
       data.completedAt = new Date();
     }

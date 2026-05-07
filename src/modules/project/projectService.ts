@@ -1,6 +1,7 @@
 import { type IProjectRepository } from './projectRepository.js';
 import type { CreateProjectDTO, ProjectResponseDTO } from './projectTypes.js';
 import { type IUserRepository } from '../user/userRepository.js';
+import { createProjectSchema } from './projectSchema.js';
 
 export interface IProjectService {
   create(data: CreateProjectDTO): Promise<ProjectResponseDTO>;
@@ -16,6 +17,8 @@ export class ProjectService implements IProjectService {
   constructor(private deps: Dependencies) {}
 
   async create(data: CreateProjectDTO): Promise<ProjectResponseDTO> {
+    createProjectSchema.parse(data);
+
     const userExists = await this.deps.userRepository.findById(data.userId);
 
     if (!userExists) {
