@@ -16,6 +16,7 @@ const userController = new DependenceFactory(
 
 router.post('/', userController.create.bind(userController));
 router.get('/', userController.findAll.bind(userController));
+router.get('/:id', userController.findById.bind(userController));
 router.delete('/:id', userController.delete.bind(userController));
 router.patch('/:id', userController.update.bind(userController));
 

@@ -6,6 +6,7 @@ export interface IUserController {
   findAll(req: Request, res: Response): Promise<Response>;
   delete(req: Request, res: Response): Promise<Response>;
   update(req: Request, res: Response): Promise<Response>;
+  findById(req: Request, res: Response): Promise<Response>
 }
 
 export class UserController implements IUserController {
@@ -78,4 +79,24 @@ export class UserController implements IUserController {
       return res.status(500).json({ message: 'Internal server error' });
     }
   }
+
+  async findById(req: Request, res: Response): Promise<Response> {
+  try {
+    const { id } = req.params;
+
+    if (!id || Array.isArray(id)) {
+      return res.status(400).json({ message: 'Invalid id' });
+    }
+
+    const user = await this.userService.findById(id);
+
+    return res.status(200).json(user);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return res.status(404).json({ message: error.message });
+    }
+
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+}
 }
