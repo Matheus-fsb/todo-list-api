@@ -1,13 +1,13 @@
 import bcrypt from 'bcrypt';
-import { createUserSchema, updateUserSchema } from './userSchema.js';
+import { createUserSchema, updateUserSchema } from './users.schemas.js';
 
 import type {
   CreateUserDTO,
   UpdateUserDTO,
   UserResponseDTO,
-} from './userTypes.js';
+} from './users.types.js';
 
-import type { IUserRepository } from './userRepository.js';
+import type { IUserRepository } from './users.repository.js';
 
 export interface IUserService {
   create(data: CreateUserDTO): Promise<UserResponseDTO>;

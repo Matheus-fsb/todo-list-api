@@ -1,6 +1,6 @@
 import { prisma } from '../../lib/prisma.js';
 import type { Task } from '../../generated/prisma/client.js';
-import type { CreateTaskDTO, UpdateTaskDTO } from './taskTypes.js';
+import type { CreateTaskDTO, UpdateTaskDTO } from './tasks.types.js';
 
 export interface ITaskRepository {
   create(data: CreateTaskDTO): Promise<Task>;

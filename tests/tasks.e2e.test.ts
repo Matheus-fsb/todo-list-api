@@ -32,7 +32,7 @@ describe("Full flow", () => {
 
     // GET TASKS
     const tasks = await request(app).get(
-      `/tasks/project/${project.body.id}`
+      `/tasks/projects/${project.body.id}`
     );
 
     expect(tasks.status).toBe(200);

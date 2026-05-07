@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import userRoutes from './modules/user/userRoutes.js';
-import projectRoutes from './modules/project/projectRoutes.js';
-import taskRoutes from './modules/task/taskRoutes.js';
+import userRoutes from './modules/users/users.routes.js';
+import projectRoutes from './modules/projects/projects.routes.js';
+import taskRoutes from './modules/tasks/tasks.routes.js';
 
 const router = Router();
 

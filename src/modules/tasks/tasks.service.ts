@@ -1,13 +1,13 @@
-import type { ITaskRepository } from './taskRepository.js';
+import type { ITaskRepository } from './tasks.repository.js';
 
-import type { IProjectRepository } from '../project/projectRepository.js';
+import type { IProjectRepository } from '../projects/projects.repository.js';
 
 import type {
   CreateTaskDTO,
   UpdateTaskDTO,
   TaskResponseDTO,
-} from './taskTypes.js';
-import { createTaskSchema, updateTaskSchema } from './taskSchema.js';
+} from './tasks.types.js';
+import { createTaskSchema, updateTaskSchema } from './tasks.schemas.js';
 
 export interface ITaskService {
   create(data: CreateTaskDTO): Promise<TaskResponseDTO>;

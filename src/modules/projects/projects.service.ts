@@ -1,7 +1,7 @@
-import { type IProjectRepository } from './projectRepository.js';
-import type { CreateProjectDTO, ProjectResponseDTO, UpdateProjectDTO } from './projectTypes.js';
-import { type IUserRepository } from '../user/userRepository.js';
-import { createProjectSchema, updateProjectSchema } from './projectSchema.js';
+import { type IProjectRepository } from './projects.repository.js';
+import type { CreateProjectDTO, ProjectResponseDTO, UpdateProjectDTO } from './projects.types.js';
+import { type IUserRepository } from '../users/users.repository.js';
+import { createProjectSchema, updateProjectSchema } from './projects.schemas.js';
 
 export interface IProjectService {
   create(data: CreateProjectDTO): Promise<ProjectResponseDTO>;

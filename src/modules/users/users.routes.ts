@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { DependenceFactory } from '../../shared/factories/moduleFactory.js';
-import { UserRepository } from './userRepository.js';
-import { UserService } from './userService.js';
-import { UserController } from './userController.js';
+import { UserRepository } from './users.repository.js';
+import { UserService } from './users.service.js';
+import { UserController } from './users.controller.js';
 
 const router = Router();
 

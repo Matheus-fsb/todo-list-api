@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { type IProjectService } from './projectService.js';
+import { type IProjectService } from './projects.service.js';
 
 export interface IProjectController {
   create(req: Request, res: Response): Promise<Response>;

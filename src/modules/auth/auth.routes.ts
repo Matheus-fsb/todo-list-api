@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { login } from './authService.js';
+import { login } from './auth.service.js';
 import type { Response, Request } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 

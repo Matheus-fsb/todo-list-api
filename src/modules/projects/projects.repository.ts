@@ -1,6 +1,6 @@
 import { prisma } from '../../lib/prisma.js';
 import type { Project } from '../../generated/prisma/client.js';
-import type { CreateProjectDTO, UpdateProjectDTO } from './projectTypes.js';
+import type { CreateProjectDTO, UpdateProjectDTO } from './projects.types.js';
 
 export interface IProjectRepository {
   create(data: CreateProjectDTO): Promise<Project>;

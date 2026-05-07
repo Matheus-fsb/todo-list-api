@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import type { IUserService } from './userService.js';
+import type { IUserService } from './users.service.js';
 
 export interface IUserController {
   create(req: Request, res: Response): Promise<Response>;

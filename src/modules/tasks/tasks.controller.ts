@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import type { TaskService } from './taskService.js';
+import type { TaskService } from './tasks.service.js';
 
 export class TaskController {
   constructor(private taskService: TaskService) {}
