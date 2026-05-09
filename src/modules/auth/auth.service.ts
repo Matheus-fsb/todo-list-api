@@ -10,6 +10,11 @@ import type {
 
 export interface IAuthService {
   login(data: LoginDTO): Promise<AuthResponseDTO>;
+
+  refresh(refreshToken: string): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }>;
 }
 
 export class AuthService implements IAuthService {
@@ -28,7 +33,12 @@ export class AuthService implements IAuthService {
       throw new Error('Login or password invalid');
     }
 
-    const token = this.generateToken({
+    const accessToken = this.generateAccessToken({
+      sub: user.id,
+      role: user.role,
+    });
+
+    const refreshToken = this.generateRefreshToken({
       sub: user.id,
       role: user.role,
     });
@@ -40,19 +50,69 @@ export class AuthService implements IAuthService {
         login: user.login,
         role: user.role,
       },
-      token,
+      accessToken,
+      refreshToken,
     };
   }
 
-  private generateToken(payload: JwtPayloadDTO): string {
-    const secret = process.env.JWT_SECRET;
+  async refresh(refreshToken: string): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    const secret = process.env.JWT_REFRESH_SECRET;
 
     if (!secret) {
-      throw new Error('JWT_SECRET is not defined');
+      throw new Error('JWT_REFRESH_SECRET is not defined');
+    }
+
+    const payload = jwt.verify(refreshToken, secret as Secret) as JwtPayloadDTO;
+
+    const user = await this.dependencies.userRepository.findById(payload.sub);
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const newAccessToken = this.generateAccessToken({
+      sub: user.id,
+      role: user.role,
+    });
+
+    const newRefreshToken = this.generateRefreshToken({
+      sub: user.id,
+      role: user.role,
+    });
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    };
+  }
+
+  private generateAccessToken(payload: JwtPayloadDTO): string {
+    const secret = process.env.JWT_ACCESS_SECRET;
+
+    if (!secret) {
+      throw new Error('JWT_ACCESS_SECRET is not defined');
     }
 
     const expiresIn: SignOptions['expiresIn'] =
-      (process.env.JWT_EXPIRES_IN as SignOptions['expiresIn']) || '1d';
+      (process.env.JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn']) || '15m';
+
+    return jwt.sign(payload, secret as Secret, {
+      expiresIn,
+    });
+  }
+
+  private generateRefreshToken(payload: JwtPayloadDTO): string {
+    const secret = process.env.JWT_REFRESH_SECRET;
+
+    if (!secret) {
+      throw new Error('JWT_REFRESH_SECRET is not defined');
+    }
+
+    const expiresIn: SignOptions['expiresIn'] =
+      (process.env.JWT_REFRESH_EXPIRES_IN as SignOptions['expiresIn']) || '7d';
 
     return jwt.sign(payload, secret as Secret, {
       expiresIn,

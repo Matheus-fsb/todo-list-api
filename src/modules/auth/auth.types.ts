@@ -1,4 +1,4 @@
-import type { UserRole } from "../../generated/prisma/enums.js";
+import type { UserRole } from '../../generated/prisma/enums.js';
 import type { IUserRepository } from '../users/users.repository.js';
 
 export interface AuthDependencies {
@@ -17,10 +17,16 @@ export interface AuthUserDTO {
   role: UserRole;
 }
 
-export interface AuthResponseDTO {
-  user: AuthUserDTO;
-  token: string;
-}
+export type AuthResponseDTO = {
+  user: {
+    id: string;
+    name: string;
+    login: string;
+    role: string;
+  };
+  accessToken: string;
+  refreshToken: string;
+};
 
 export interface JwtPayloadDTO {
   sub: string;

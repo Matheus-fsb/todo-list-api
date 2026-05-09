@@ -19,6 +19,7 @@ const authFactory = new DependenceFactory(
 const authController = authFactory.getController();
 
 router.post('/login', authController.login.bind(authController));
+router.post('/refresh', authController.refresh.bind(authController));
 router.post('/logout', authController.logout.bind(authController));
 
 export default router;
