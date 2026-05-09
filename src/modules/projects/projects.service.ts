@@ -1,12 +1,13 @@
 import { type IProjectRepository } from './projects.repository.js';
-import type { CreateProjectDTO, ProjectResponseDTO, UpdateProjectDTO } from './projects.types.js';
+import type { CreateProjectDTO, ProjectResponseDTO, UpdateProjectWithAuthDTO, DeleteProjectWithAuthDTO } from './projects.types.js';
 import { type IUserRepository } from '../users/users.repository.js';
 import { createProjectSchema, updateProjectSchema } from './projects.schemas.js';
 
 export interface IProjectService {
   create(data: CreateProjectDTO): Promise<ProjectResponseDTO>;
   findByUser(userId: string): Promise<ProjectResponseDTO[]>;
-  update(id: string, data: UpdateProjectDTO): Promise<ProjectResponseDTO>;
+  update(data: UpdateProjectWithAuthDTO): Promise<ProjectResponseDTO>;
+  delete(data: DeleteProjectWithAuthDTO): Promise<void>;
 }
 
 type Dependencies = {
@@ -35,17 +36,41 @@ export class ProjectService implements IProjectService {
     return this.deps.projectRepository.findByUser(userId);
   }
 
-  async update(id: string, data: UpdateProjectDTO): Promise<ProjectResponseDTO> {
-    updateProjectSchema.parse(data);
+  async update(data: UpdateProjectWithAuthDTO): Promise<ProjectResponseDTO> {
+    updateProjectSchema.parse(data.data);
 
-    const projectExists = await this.deps.projectRepository.findById(id);
+    const projectExists = await this.deps.projectRepository.findById(data.targetProjectId);
 
     if (!projectExists) {
       throw new Error('Project not found');
     }
 
-    const updatedProject = await this.deps.projectRepository.update(id, data);
+    const isSelfUpdate = projectExists.userId === data.authenticatedUserId;
+    const isAdmin = data.authenticatedUserRole === 'ADMIN';
+
+    if (!isSelfUpdate && !isAdmin) {
+      throw new Error('Forbidden');
+    }
+
+    const updatedProject = await this.deps.projectRepository.update(data.targetProjectId, data.data);
 
     return updatedProject;
+  }
+
+  async delete(data: DeleteProjectWithAuthDTO): Promise<void> {
+    const projectExists = await this.deps.projectRepository.findById(data.targetProjectId);
+
+    if (!projectExists) {
+      throw new Error('Project not found');
+    }
+
+    const isSelfDelete = projectExists.userId === data.authenticatedUserId;
+    const isAdmin = data.authenticatedUserRole === 'ADMIN';
+
+    if (!isSelfDelete && !isAdmin) {
+      throw new Error('Forbidden');
+    }
+
+    await this.deps.projectRepository.delete(data.targetProjectId);
   }
 }

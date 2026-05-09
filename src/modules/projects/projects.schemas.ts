@@ -11,7 +11,7 @@ export const createProjectSchema = z.object({
     .max(500, 'Description must have a maximum of 500 characters')
     .optional(),
 
-  userId: z.string().uuid('Invalid user ID'),
+  userId: z.uuid('Invalid user ID'),
 });
 
 export const updateProjectSchema = createProjectSchema.partial();

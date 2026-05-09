@@ -6,14 +6,16 @@ import type {
   CreateTaskDTO,
   UpdateTaskDTO,
   TaskResponseDTO,
+  UpdateTaskWithAuthDTO,
+  DeleteTaskWithAuthDTO,
 } from './tasks.types.js';
 import { createTaskSchema, updateTaskSchema } from './tasks.schemas.js';
 
 export interface ITaskService {
   create(data: CreateTaskDTO): Promise<TaskResponseDTO>;
-  update(id: string, data: UpdateTaskDTO): Promise<TaskResponseDTO>;
+  update(data: UpdateTaskWithAuthDTO): Promise<TaskResponseDTO>;
   findByProject(projectId: string): Promise<TaskResponseDTO[]>;
-  delete(id: string): Promise<void>;
+  delete(data: DeleteTaskWithAuthDTO): Promise<void>;
 }
 
 type Dependencies = {
@@ -38,25 +40,59 @@ export class TaskService implements ITaskService {
     return this.deps.taskRepository.create(data);
   }
 
-  async update(id: string, data: UpdateTaskDTO): Promise<TaskResponseDTO> {
-    updateTaskSchema.parse(data)
+  async update(data: UpdateTaskWithAuthDTO): Promise<TaskResponseDTO> {
+    updateTaskSchema.parse(data.data)
 
-    if (data.status === 'COMPLETED') {
-      data.completedAt = new Date();
+    const taskExists = await this.deps.taskRepository.findById(data.targetTaskId);
+    if (!taskExists) {
+      throw new Error('Task not found');
     }
 
-    if (data.status && data.status !== 'COMPLETED') {
-      data.completedAt = null;
+    const projectExists = await this.deps.projectRepository.findById(taskExists.projectId);
+    if (!projectExists) {
+      throw new Error('Project not found');
     }
 
-    return this.deps.taskRepository.update(id, data);
+    const isSelfUpdate = projectExists.userId === data.authenticatedUserId;
+    const isAdmin = data.authenticatedUserRole === 'ADMIN';
+
+    if (!isSelfUpdate && !isAdmin) {
+      throw new Error('Forbidden');
+    }
+
+    if (data.data.status === 'COMPLETED') {
+      data.data.completedAt = new Date();
+    }
+
+    if (data.data.status && data.data.status !== 'COMPLETED') {
+      data.data.completedAt = null;
+    }
+
+    return this.deps.taskRepository.update(data.targetTaskId, data.data);
   }
 
   async findByProject(projectId: string): Promise<TaskResponseDTO[]> {
     return this.deps.taskRepository.findByProject(projectId);
   }
 
-  async delete(id: string): Promise<void> {
-    await this.deps.taskRepository.delete(id);
+  async delete(data: DeleteTaskWithAuthDTO): Promise<void> {
+    const taskExists = await this.deps.taskRepository.findById(data.targetTaskId);
+    if (!taskExists) {
+      throw new Error('Task not found');
+    }
+
+    const projectExists = await this.deps.projectRepository.findById(taskExists.projectId);
+    if (!projectExists) {
+      throw new Error('Project not found');
+    }
+
+    const isSelfDelete = projectExists.userId === data.authenticatedUserId;
+    const isAdmin = data.authenticatedUserRole === 'ADMIN';
+
+    if (!isSelfDelete && !isAdmin) {
+      throw new Error('Forbidden');
+    }
+
+    await this.deps.taskRepository.delete(data.targetTaskId);
   }
 }

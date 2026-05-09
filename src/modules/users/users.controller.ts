@@ -1,12 +1,13 @@
 import type { Request, Response } from 'express';
 import type { IUserService } from './users.service.js';
+import type { AuthenticatedRequest } from '../auth/auth.request.js';
 
 export interface IUserController {
   create(req: Request, res: Response): Promise<Response>;
   findAll(req: Request, res: Response): Promise<Response>;
   delete(req: Request, res: Response): Promise<Response>;
   update(req: Request, res: Response): Promise<Response>;
-  findById(req: Request, res: Response): Promise<Response>
+  findById(req: Request, res: Response): Promise<Response>;
 }
 
 export class UserController implements IUserController {
@@ -28,43 +29,94 @@ export class UserController implements IUserController {
     }
   }
 
-  async update(req: Request, res: Response): Promise<Response> {
+  async update(req: AuthenticatedRequest, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
 
-      if (!id || Array.isArray(id)) {
-        return res.status(400).json({ message: 'Invalid id' });
+      if (!req.user) {
+        return res.status(401).json({
+          message: 'Unauthorized',
+        });
       }
 
-      const updatedUser = await this.userService.update(id, req.body);
+      if (!id || Array.isArray(id)) {
+        return res.status(400).json({
+          message: 'Invalid user id',
+        });
+      }
+
+      const updatedUser = await this.userService.update({
+        targetUserId: id,
+        authenticatedUserId: req.user.id,
+        authenticatedUserRole: req.user.role,
+        data: req.body,
+      });
 
       return res.status(200).json(updatedUser);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(400).json({ message: error.message });
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Forbidden') {
+        return res.status(403).json({
+          message: 'Forbidden',
+        });
       }
 
-      return res.status(500).json({ message: 'Internal server error' });
+      if (error instanceof Error && error.message === 'User not found') {
+        return res.status(404).json({
+          message: 'User not found',
+        });
+      }
+
+      if (error instanceof Error && error.message === 'Login already in use') {
+        return res.status(409).json({
+          message: 'Login already in use',
+        });
+      }
+
+      return res.status(400).json({
+        message: 'Invalid data',
+      });
     }
   }
 
-  async delete(req: Request, res: Response): Promise<Response> {
+  async delete(req: AuthenticatedRequest, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
 
-      if (!id || Array.isArray(id)) {
-        return res.status(400).json({ message: 'Invalid id' });
+      if (!req.user) {
+        return res.status(401).json({
+          message: 'Unauthorized',
+        });
       }
 
-      await this.userService.delete(id);
+      if (!id || Array.isArray(id)) {
+        return res.status(400).json({
+          message: 'Invalid user id',
+        });
+      }
+
+      await this.userService.delete({
+        targetUserId: id,
+        authenticatedUserId: req.user.id,
+        authenticatedUserRole: req.user.role,
+      });
 
       return res.status(204).send();
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(400).json({ message: error.message });
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Forbidden') {
+        return res.status(403).json({
+          message: 'Forbidden',
+        });
       }
 
-      return res.status(500).json({ message: 'Internal server error' });
+      if (error instanceof Error && error.message === 'User not found') {
+        return res.status(404).json({
+          message: 'User not found',
+        });
+      }
+
+      return res.status(500).json({
+        message: 'Internal server error',
+      });
     }
   }
 
@@ -81,22 +133,22 @@ export class UserController implements IUserController {
   }
 
   async findById(req: Request, res: Response): Promise<Response> {
-  try {
-    const { id } = req.params;
+    try {
+      const { id } = req.params;
 
-    if (!id || Array.isArray(id)) {
-      return res.status(400).json({ message: 'Invalid id' });
+      if (!id || Array.isArray(id)) {
+        return res.status(400).json({ message: 'Invalid id' });
+      }
+
+      const user = await this.userService.findById(id);
+
+      return res.status(200).json(user);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res.status(404).json({ message: error.message });
+      }
+
+      return res.status(500).json({ message: 'Internal server error' });
     }
-
-    const user = await this.userService.findById(id);
-
-    return res.status(200).json(user);
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return res.status(404).json({ message: error.message });
-    }
-
-    return res.status(500).json({ message: 'Internal server error' });
   }
-}
 }

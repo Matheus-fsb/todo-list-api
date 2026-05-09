@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import type { TaskService } from './tasks.service.js';
+import type { AuthenticatedRequest } from '../auth/auth.request.js';
 
 export class TaskController {
   constructor(private taskService: TaskService) {}
@@ -17,17 +18,35 @@ export class TaskController {
     }
   }
 
-  async update(req: Request, res: Response): Promise<Response> {
+  async update(req: AuthenticatedRequest, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
+
+      if (!req.user) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
 
       if (!id || Array.isArray(id)) {
         return res.status(400).json({ message: 'Invalid id' });
       }
 
-      const task = await this.taskService.update(id, req.body);
+      const task = await this.taskService.update({
+        targetTaskId: id,
+        authenticatedUserId: req.user.id,
+        authenticatedUserRole: req.user.role,
+        data: req.body,
+      });
       return res.json(task);
     } catch (error: unknown) {
+      if (error instanceof Error && error.message === 'Forbidden') {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+      if (error instanceof Error && error.message === 'Task not found') {
+        return res.status(404).json({ message: 'Task not found' });
+      }
+      if (error instanceof Error && error.message === 'Project not found') {
+        return res.status(404).json({ message: 'Project not found' });
+      }
       if (error instanceof Error) {
         return res.status(400).json({ message: error.message });
       }
@@ -55,17 +74,34 @@ export class TaskController {
     }
   }
 
-  async delete(req: Request, res: Response): Promise<Response> {
+  async delete(req: AuthenticatedRequest, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
+
+      if (!req.user) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
 
       if (!id || Array.isArray(id)) {
         return res.status(400).json({ message: 'Invalid id' });
       }
 
-      await this.taskService.delete(id);
+      await this.taskService.delete({
+        targetTaskId: id,
+        authenticatedUserId: req.user.id,
+        authenticatedUserRole: req.user.role,
+      });
       return res.status(204).send();
     } catch (error: unknown) {
+      if (error instanceof Error && error.message === 'Forbidden') {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+      if (error instanceof Error && error.message === 'Task not found') {
+        return res.status(404).json({ message: 'Task not found' });
+      }
+      if (error instanceof Error && error.message === 'Project not found') {
+        return res.status(404).json({ message: 'Project not found' });
+      }
       if (error instanceof Error) {
         return res.status(400).json({ message: error.message });
       }

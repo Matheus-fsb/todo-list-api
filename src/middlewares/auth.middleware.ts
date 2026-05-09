@@ -1,44 +1,50 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import type { UserRole } from '../generated/prisma/enums.js';
 
-type JwtPayload = {
-  userId: string;
-};
-
-export interface AuthRequest extends Request {
-  user?: JwtPayload;
+interface JwtPayloadDTO {
+  sub: string;
+  role: UserRole;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET não definido');
+export interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    role: UserRole;
+  };
 }
 
-export const authMiddleware = (
-  req: AuthRequest,
+export function authMiddleware(
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
-) => {
-  const authHeader = req.headers.authorization;
+) {
+  const token = req.cookies?.accessToken;
 
-  if (!authHeader) {
-    return res.status(401).json({ message: 'Token não informado' });
-  }
-
-  const [scheme, token] = authHeader.split(' ');
-
-  if (scheme !== 'Bearer' || !token) {
-    return res.status(401).json({ message: 'Token mal formatado' });
+  if (!token) {
+    return res.status(401).json({
+      message: 'Unauthorized',
+    });
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    const secret = process.env.JWT_SECRET;
 
-    req.user = decoded;
+    if (!secret) {
+      throw new Error('JWT_SECRET is not defined');
+    }
+
+    const decoded = jwt.verify(token, secret) as JwtPayloadDTO;
+
+    req.user = {
+      id: decoded.sub,
+      role: decoded.role,
+    };
 
     return next();
   } catch {
-    return res.status(401).json({ message: 'Token inválido ou expirado' });
+    return res.status(401).json({
+      message: 'Invalid or expired token',
+    });
   }
-};
+}

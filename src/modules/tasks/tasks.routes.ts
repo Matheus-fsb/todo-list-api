@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { DependenceFactory } from '../../shared/factories/moduleFactory.js';
+import { authMiddleware } from '../../middlewares/auth.middleware.js';
+import { roleMiddleware } from '../../middlewares/role.middleware.js';
 import { TaskRepository } from './tasks.repository.js';
 import { TaskService } from './tasks.service.js';
 import { TaskController } from './tasks.controller.js';
@@ -16,8 +18,8 @@ const taskController = new DependenceFactory(
 ).getController();
 
 router.post('/', taskController.create.bind(taskController));
-router.put('/:id', taskController.update.bind(taskController));
-router.get('/projects/:projectId', taskController.findByProject.bind(taskController));
-router.delete('/:id', taskController.delete.bind(taskController));
+router.put('/:id', authMiddleware, taskController.update.bind(taskController));
+router.get('/projects/:projectId', authMiddleware, roleMiddleware(['ADMIN']), taskController.findByProject.bind(taskController));
+router.delete('/:id', authMiddleware, taskController.delete.bind(taskController));
 
 export default router;

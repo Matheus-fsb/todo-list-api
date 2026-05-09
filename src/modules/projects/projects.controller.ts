@@ -1,9 +1,12 @@
 import type { Request, Response } from 'express';
 import { type IProjectService } from './projects.service.js';
+import type { AuthenticatedRequest } from '../auth/auth.request.js';
 
 export interface IProjectController {
   create(req: Request, res: Response): Promise<Response>;
   findByUser(req: Request, res: Response): Promise<Response>;
+  update(req: AuthenticatedRequest, res: Response): Promise<Response>;
+  delete(req: AuthenticatedRequest, res: Response): Promise<Response>;
 }
 
 export class ProjectController implements IProjectController {
@@ -39,19 +42,64 @@ export class ProjectController implements IProjectController {
     }
   }
 
-  async update(req: Request, res: Response): Promise<Response> {
+  async update(req: AuthenticatedRequest, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
+
+      if (!req.user) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
 
       if (!id || Array.isArray(id)) {
         return res.status(400).json({ message: 'Invalid id' });
       }
 
-      const updatedProject = await this.projectService.update(id, req.body);
+      const updatedProject = await this.projectService.update({
+        targetProjectId: id,
+        authenticatedUserId: req.user.id,
+        authenticatedUserRole: req.user.role,
+        data: req.body,
+      });
       return res.status(200).json(updatedProject);
     } catch (error: unknown) {
+      if (error instanceof Error && error.message === 'Forbidden') {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+      if (error instanceof Error && error.message === 'Project not found') {
+        return res.status(404).json({ message: 'Project not found' });
+      }
       if (error instanceof Error) {
         return res.status(400).json({ message: error.message });
+      }
+
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+  async delete(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    try {
+      const { id } = req.params;
+
+      if (!req.user) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      if (!id || Array.isArray(id)) {
+        return res.status(400).json({ message: 'Invalid id' });
+      }
+
+      await this.projectService.delete({
+        targetProjectId: id,
+        authenticatedUserId: req.user.id,
+        authenticatedUserRole: req.user.role,
+      });
+      return res.status(204).send();
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message === 'Forbidden') {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+      if (error instanceof Error && error.message === 'Project not found') {
+        return res.status(404).json({ message: 'Project not found' });
       }
 
       return res.status(500).json({ message: 'Internal server error' });

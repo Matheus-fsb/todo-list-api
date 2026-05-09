@@ -1,16 +1,24 @@
 import { Router } from 'express';
-import { login } from './auth.service.js';
-import type { Response, Request } from 'express';
-import { asyncHandler } from '../../utils/asyncHandler.js';
+
+import { DependenceFactory } from '../../shared/factories/moduleFactory.js';
+
+import { UserRepository } from '../users/users.repository.js';
+import { AuthService } from './auth.service.js';
+import { AuthController } from './auth.controller.js';
 
 const router = Router();
 
-router.post(
-  '/login',
-  asyncHandler(async (req: Request, res: Response) => {
-    const result = await login(req.body);
-    res.json(result);
-  })
+const authFactory = new DependenceFactory(
+  {
+    userRepository: new UserRepository(),
+  },
+  AuthService,
+  AuthController
 );
+
+const authController = authFactory.getController();
+
+router.post('/login', authController.login.bind(authController));
+router.post('/logout', authController.logout.bind(authController));
 
 export default router;

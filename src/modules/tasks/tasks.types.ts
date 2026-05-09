@@ -20,6 +20,19 @@ export type UpdateTaskDTO = Partial<{
   completedAt: Date | null;
 }>;
 
+export type UpdateTaskWithAuthDTO = {
+  targetTaskId: string;
+  authenticatedUserId: string;
+  authenticatedUserRole: string;
+  data: UpdateTaskDTO;
+};
+
+export type DeleteTaskWithAuthDTO = {
+  targetTaskId: string;
+  authenticatedUserId: string;
+  authenticatedUserRole: string;
+};
+
 // DTO de resposta
 export type TaskResponseDTO = {
   id: string;

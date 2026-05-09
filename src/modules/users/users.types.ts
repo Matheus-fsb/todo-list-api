@@ -17,3 +17,16 @@ export type UserResponseDTO = {
   name: string;
   login: string;
 };
+
+export interface DeleteUserDTO {
+  targetUserId: string;
+  authenticatedUserId: string;
+  authenticatedUserRole: UserRole;
+}
+
+export interface UpdateUserWithAuthDTO {
+  targetUserId: string;
+  authenticatedUserId: string;
+  authenticatedUserRole: UserRole;
+  data: UpdateUserDTO;
+}

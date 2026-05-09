@@ -1,53 +1,61 @@
-import { prisma } from '../../lib/prisma.js';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import type { Secret, SignOptions } from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import jwt, { type SignOptions, type Secret } from 'jsonwebtoken';
 
-// tipos
-type LoginDTO = {
-  login: string;
-  password: string;
-};
+import type {
+  LoginDTO,
+  AuthResponseDTO,
+  JwtPayloadDTO,
+  AuthDependencies,
+} from './auth.types.js';
 
-type JwtPayload = {
-  userId: string;
-};
+export interface IAuthService {
+  login(data: LoginDTO): Promise<AuthResponseDTO>;
+}
 
-// valida env (resolve o erro do TS)
-const JWT_SECRET: Secret = process.env.JWT_SECRET as string;
+export class AuthService implements IAuthService {
+  constructor(private dependencies: AuthDependencies) {}
 
-const JWT_EXPIRES_IN: SignOptions['expiresIn'] =
-  (process.env.JWT_EXPIRES_IN as SignOptions['expiresIn']) || '1d';
+  async login(data: LoginDTO): Promise<AuthResponseDTO> {
+    const user = await this.dependencies.userRepository.findByLogin(data.login);
 
-export const login = async ({ login, password }: LoginDTO) => {
-  const user = await prisma.user.findUnique({
-    where: { login },
-  });
+    if (!user) {
+      throw new Error('Login or password invalid');
+    }
 
-  if (!user) {
-    throw new Error('Usuário não encontrado');
+    const passwordMatches = await bcrypt.compare(data.password, user.password);
+
+    if (!passwordMatches) {
+      throw new Error('Login or password invalid');
+    }
+
+    const token = this.generateToken({
+      sub: user.id,
+      role: user.role,
+    });
+
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        login: user.login,
+        role: user.role,
+      },
+      token,
+    };
   }
 
-  const isValid = await bcrypt.compare(password, user.password);
+  private generateToken(payload: JwtPayloadDTO): string {
+    const secret = process.env.JWT_SECRET;
 
-  if (!isValid) {
-    throw new Error('Senha inválida');
+    if (!secret) {
+      throw new Error('JWT_SECRET is not defined');
+    }
+
+    const expiresIn: SignOptions['expiresIn'] =
+      (process.env.JWT_EXPIRES_IN as SignOptions['expiresIn']) || '1d';
+
+    return jwt.sign(payload, secret as Secret, {
+      expiresIn,
+    });
   }
-
-  const payload: JwtPayload = {
-    userId: user.id,
-  };
-
-  const token = jwt.sign(payload, JWT_SECRET, {
-    expiresIn: JWT_EXPIRES_IN,
-  });
-
-  return {
-    user: {
-      id: user.id,
-      name: user.name,
-      login: user.login,
-    },
-    token,
-  };
-};
+}
