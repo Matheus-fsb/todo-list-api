@@ -28,7 +28,7 @@ export class UserService implements IUserService {
   async create(data: CreateUserDTO): Promise<UserResponseDTO> {
     createUserSchema.parse(data);
 
-    const userExists = await this.deps.userRepository.findByLogin(data.login);
+    const userExists = await this.deps.userRepository.findByEmail(data.email);
 
     if (userExists) {
       throw new Error('User already exists');
@@ -44,7 +44,7 @@ export class UserService implements IUserService {
     return {
       id: user.id,
       name: user.name,
-      login: user.login,
+      email: user.email,
     };
   }
 
@@ -85,13 +85,13 @@ export class UserService implements IUserService {
       throw new Error('User not found');
     }
 
-    if (data.data.login && data.data.login !== userExists.login) {
-      const loginInUse = await this.deps.userRepository.findByLogin(
-        data.data.login
+    if (data.data.email && data.data.email !== userExists.email) {
+      const emailInUse = await this.deps.userRepository.findByEmail(
+        data.data.email
       );
 
-      if (loginInUse) {
-        throw new Error('Login already in use');
+      if (emailInUse) {
+        throw new Error('Email already in use');
       }
     }
 
@@ -109,7 +109,7 @@ export class UserService implements IUserService {
     return {
       id: updatedUser.id,
       name: updatedUser.name,
-      login: updatedUser.login,
+      email: updatedUser.email,
     };
   }
 
@@ -119,7 +119,7 @@ export class UserService implements IUserService {
     return users.map(user => ({
       id: user.id,
       name: user.name,
-      login: user.login,
+      email: user.email,
     }));
   }
 
@@ -133,7 +133,7 @@ export class UserService implements IUserService {
     return {
       id: user.id,
       name: user.name,
-      login: user.login,
+      email: user.email,
     };
   }
 }

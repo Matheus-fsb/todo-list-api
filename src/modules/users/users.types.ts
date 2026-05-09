@@ -3,7 +3,7 @@ import type { UserRole } from '../../generated/prisma/client.js';
 // Dados para criação de usuário
 export type CreateUserDTO = {
   name: string;
-  login: string;
+  email: string;
   password: string;
   role?: UserRole;
 };
@@ -15,7 +15,7 @@ export type UpdateUserDTO = Partial<CreateUserDTO>;
 export type UserResponseDTO = {
   id: string;
   name: string;
-  login: string;
+  email: string;
 };
 
 export interface DeleteUserDTO {

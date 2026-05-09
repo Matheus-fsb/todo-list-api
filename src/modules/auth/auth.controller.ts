@@ -28,7 +28,7 @@ export class AuthController {
       });
     } catch {
       return res.status(401).json({
-        message: 'Login or password invalid',
+        message: 'Email or password invalid',
       });
     }
   }

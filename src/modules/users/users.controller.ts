@@ -66,9 +66,9 @@ export class UserController implements IUserController {
         });
       }
 
-      if (error instanceof Error && error.message === 'Login already in use') {
+      if (error instanceof Error && error.message === 'Email already in use') {
         return res.status(409).json({
-          message: 'Login already in use',
+          message: 'Email already in use',
         });
       }
 

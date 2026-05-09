@@ -5,7 +5,7 @@ import type { CreateUserDTO, UpdateUserDTO } from './users.types.js';
 export interface IUserRepository {
   create(data: CreateUserDTO): Promise<User>;
   findById(id: string): Promise<User | null>;
-  findByLogin(login: string): Promise<User | null>;
+  findByEmail(email: string): Promise<User | null>;
   findAll(): Promise<User[]>;
   update(id: string, data: UpdateUserDTO): Promise<User>;
   delete(id: string): Promise<User>;
@@ -22,9 +22,9 @@ export class UserRepository implements IUserRepository {
     });
   }
 
-  async findByLogin(login: string): Promise<User | null> {
+  async findByEmail(email: string): Promise<User | null> {
     return prisma.user.findUnique({
-      where: { login },
+      where: { email },
     });
   }
 

@@ -21,16 +21,16 @@ export class AuthService implements IAuthService {
   constructor(private dependencies: AuthDependencies) {}
 
   async login(data: LoginDTO): Promise<AuthResponseDTO> {
-    const user = await this.dependencies.userRepository.findByLogin(data.login);
+    const user = await this.dependencies.userRepository.findByEmail(data.email);
 
     if (!user) {
-      throw new Error('Login or password invalid');
+      throw new Error('Email or password invalid');
     }
 
     const passwordMatches = await bcrypt.compare(data.password, user.password);
 
     if (!passwordMatches) {
-      throw new Error('Login or password invalid');
+      throw new Error('Email or password invalid');
     }
 
     const accessToken = this.generateAccessToken({
@@ -47,7 +47,7 @@ export class AuthService implements IAuthService {
       user: {
         id: user.id,
         name: user.name,
-        login: user.login,
+        email: user.email,
         role: user.role,
       },
       accessToken,
