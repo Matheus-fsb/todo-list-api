@@ -9,6 +9,7 @@ import type {
 } from './users.types.js';
 
 import type { IUserRepository } from './users.repository.js';
+import type { INotificationService } from '../notifications/notification.service.js';
 
 export interface IUserService {
   create(data: CreateUserDTO): Promise<UserResponseDTO>;
@@ -20,6 +21,7 @@ export interface IUserService {
 
 type Dependencies = {
   userRepository: IUserRepository;
+  notificationService: INotificationService;
 };
 
 export class UserService implements IUserService {
@@ -40,6 +42,15 @@ export class UserService implements IUserService {
       ...data,
       password: hashedPassword,
     });
+
+    //cria a notificação
+    try {
+      await this.deps.notificationService.createWelcomeNotification({name: user.name, email: user.email});
+    } catch (error: unknown) {
+      if(error instanceof Error){
+        console.error('Error sending welcome email:', error.message)
+      }
+    }
 
     return {
       id: user.id,

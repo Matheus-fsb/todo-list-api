@@ -5,12 +5,15 @@ import { UserService } from './users.service.js';
 import { UserController } from './users.controller.js';
 import { authMiddleware } from '../../middlewares/auth.middleware.js';
 import { roleMiddleware } from '../../middlewares/role.middleware.js';
+import { NotificationService } from '../notifications/notification.service.js';
+import { MailService } from '../../shared/mail/mail.service.js';
 
 const router = Router();
 
 const userController = new DependenceFactory(
   {
     userRepository: new UserRepository(),
+    notificationService: new NotificationService(new MailService(process.env.MAIL_HOST, process.env.MAIL_PORT, process.env.MAIL_USER, process.env.MAIL_PASS, process.env.MAIL_FROM))
   },
   UserService,
   UserController
