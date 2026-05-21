@@ -13,11 +13,14 @@ model User {
   email     String   @unique
   password  String
   role      UserRole @default(USER)
+  emailVerified Boolean @default(false)
+  emailVerifiedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   projects Project[]
+  tokens ValidationToken[]
 }
 
 model Project {
@@ -45,6 +48,15 @@ model Task {
 
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model ValidationToken {
+  id String @id @default(uuid())
+  token String @unique
+  expiresAt DateTime
+
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum Status {

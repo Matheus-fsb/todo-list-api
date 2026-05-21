@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt, { type SignOptions, type Secret } from 'jsonwebtoken';
 
@@ -6,15 +7,17 @@ import type {
   AuthResponseDTO,
   JwtPayloadDTO,
   AuthDependencies,
+  AuthUserDTO,
 } from './auth.types.js';
 
 export interface IAuthService {
   login(data: LoginDTO): Promise<AuthResponseDTO>;
-
   refresh(refreshToken: string): Promise<{
     accessToken: string;
     refreshToken: string;
   }>;
+  generateValidationEmailToken(user: AuthUserDTO): Promise<void>;
+  validateEmail(token: string): Promise<void>;
 }
 
 export class AuthService implements IAuthService {
@@ -31,6 +34,10 @@ export class AuthService implements IAuthService {
 
     if (!passwordMatches) {
       throw new Error('Email or password invalid');
+    }
+
+    if (!user.emailVerified) {
+      throw new Error('Email not verified');
     }
 
     const accessToken = this.generateAccessToken({
@@ -87,6 +94,58 @@ export class AuthService implements IAuthService {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
     };
+  }
+
+  async generateValidationEmailToken(user: AuthUserDTO): Promise<void> {
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await this.dependencies.authRepository.create({
+      token,
+      userId: user.id,
+      expiresAt,
+    });
+
+    try {
+      await this.dependencies.notificationService.verifyAccountNotification(
+        user,
+        token,
+      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error sending validation email:', error.message);
+      }
+    }
+  }
+
+  async validateEmail(token: string): Promise<void> {
+    const validationToken =
+      await this.dependencies.authRepository.findByToken(token);
+
+    if (!validationToken) {
+      throw new Error('Invalid validation token');
+    }
+
+    if (validationToken.expiresAt < new Date()) {
+      await this.dependencies.authRepository.delete(validationToken.id);
+      throw new Error('Expired validation token');
+    }
+
+    await this.dependencies.userRepository.verifyEmail(validationToken.userId);
+    await this.dependencies.authRepository.delete(validationToken.id);
+
+    const user = await this.dependencies.userRepository.findById(
+      validationToken.userId,
+    );
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    await this.dependencies.notificationService.createWelcomeNotification({
+      name: user.name,
+      email: user.email,
+    });
   }
 
   private generateAccessToken(payload: JwtPayloadDTO): string {

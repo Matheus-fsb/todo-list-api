@@ -1,8 +1,4 @@
-export class DependenceFactory<
-  TDependencies,
-  TService,
-  TController
-> {
+export class DependenceFactory<TDependencies, TService, TController> {
   public readonly dependencies: TDependencies;
   public readonly service: TService;
   public readonly controller: TController;
@@ -10,13 +6,9 @@ export class DependenceFactory<
   constructor(
     dependencies: TDependencies,
 
-    ServiceClass: new (
-      dependencies: TDependencies
-    ) => TService,
+    ServiceClass: new (dependencies: TDependencies) => TService,
 
-    ControllerClass: new (
-      service: TService
-    ) => TController
+    ControllerClass: new (service: TService) => TController,
   ) {
     this.dependencies = dependencies;
 

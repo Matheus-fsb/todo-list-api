@@ -8,6 +8,7 @@ export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
   findAll(): Promise<User[]>;
   update(id: string, data: UpdateUserDTO): Promise<User>;
+  verifyEmail(id: string): Promise<User>;
   delete(id: string): Promise<User>;
 }
 
@@ -36,6 +37,16 @@ export class UserRepository implements IUserRepository {
     return prisma.user.update({
       where: { id },
       data,
+    });
+  }
+
+  async verifyEmail(id: string): Promise<User> {
+    return prisma.user.update({
+      where: { id },
+      data: {
+        emailVerified: true,
+        emailVerifiedAt: new Date(),
+      },
     });
   }
 

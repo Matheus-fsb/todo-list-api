@@ -1,7 +1,15 @@
 import { type IProjectRepository } from './projects.repository.js';
-import type { CreateProjectDTO, ProjectResponseDTO, UpdateProjectWithAuthDTO, DeleteProjectWithAuthDTO } from './projects.types.js';
+import type {
+  CreateProjectDTO,
+  ProjectResponseDTO,
+  UpdateProjectWithAuthDTO,
+  DeleteProjectWithAuthDTO,
+} from './projects.types.js';
 import { type IUserRepository } from '../users/users.repository.js';
-import { createProjectSchema, updateProjectSchema } from './projects.schemas.js';
+import {
+  createProjectSchema,
+  updateProjectSchema,
+} from './projects.schemas.js';
 
 export interface IProjectService {
   create(data: CreateProjectDTO): Promise<ProjectResponseDTO>;
@@ -39,7 +47,9 @@ export class ProjectService implements IProjectService {
   async update(data: UpdateProjectWithAuthDTO): Promise<ProjectResponseDTO> {
     updateProjectSchema.parse(data.data);
 
-    const projectExists = await this.deps.projectRepository.findById(data.targetProjectId);
+    const projectExists = await this.deps.projectRepository.findById(
+      data.targetProjectId,
+    );
 
     if (!projectExists) {
       throw new Error('Project not found');
@@ -52,13 +62,18 @@ export class ProjectService implements IProjectService {
       throw new Error('Forbidden');
     }
 
-    const updatedProject = await this.deps.projectRepository.update(data.targetProjectId, data.data);
+    const updatedProject = await this.deps.projectRepository.update(
+      data.targetProjectId,
+      data.data,
+    );
 
     return updatedProject;
   }
 
   async delete(data: DeleteProjectWithAuthDTO): Promise<void> {
-    const projectExists = await this.deps.projectRepository.findById(data.targetProjectId);
+    const projectExists = await this.deps.projectRepository.findById(
+      data.targetProjectId,
+    );
 
     if (!projectExists) {
       throw new Error('Project not found');

@@ -5,13 +5,8 @@ import type { Response, NextFunction } from 'express';
 import type { AuthenticatedRequest } from './auth.middleware.js';
 import type { UserRole } from '../generated/prisma/enums.js';
 
-
 export function roleMiddleware(allowedRoles: UserRole[]) {
-  return (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const userRole = req.user?.role;
 
     if (!userRole) {

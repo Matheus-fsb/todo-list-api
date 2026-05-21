@@ -26,7 +26,13 @@ export class AuthController {
         user: result.user,
         message: 'Login successful',
       });
-    } catch {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message === 'Email not verified') {
+        return res.status(403).json({
+          message: 'Email not verified',
+        });
+      }
+
       return res.status(401).json({
         message: 'Email or password invalid',
       });
@@ -79,5 +85,33 @@ export class AuthController {
     return res.status(200).json({
       message: 'Logout successful',
     });
+  }
+
+  async validateEmail(req: Request, res: Response): Promise<Response> {
+    try {
+      const { token } = req.query;
+
+      if (typeof token !== 'string') {
+        return res.status(400).json({
+          message: 'Validation token is required',
+        });
+      }
+
+      await this.authService.validateEmail(token);
+
+      return res.status(200).json({
+        message: 'Email validated successfully',
+      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return res.status(400).json({
+          message: error.message,
+        });
+      }
+
+      return res.status(500).json({
+        message: 'Internal server error',
+      });
+    }
   }
 }

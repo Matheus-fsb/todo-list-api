@@ -14,12 +14,21 @@ const taskController = new DependenceFactory(
     projectRepository: new ProjectRepository(),
   },
   TaskService,
-  TaskController
+  TaskController,
 ).getController();
 
 router.post('/', taskController.create.bind(taskController));
 router.put('/:id', authMiddleware, taskController.update.bind(taskController));
-router.get('/projects/:projectId', authMiddleware, roleMiddleware(['ADMIN']), taskController.findByProject.bind(taskController));
-router.delete('/:id', authMiddleware, taskController.delete.bind(taskController));
+router.get(
+  '/projects/:projectId',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  taskController.findByProject.bind(taskController),
+);
+router.delete(
+  '/:id',
+  authMiddleware,
+  taskController.delete.bind(taskController),
+);
 
 export default router;

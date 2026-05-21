@@ -1,8 +1,12 @@
-import type { UserRole } from "../../generated/prisma/enums.js";
+import type { UserRole } from '../../generated/prisma/enums.js';
+import type { INotificationService } from '../notifications/notification.service.js';
+import type { IAuthRepository } from './auth.repository.js';
 import type { IUserRepository } from '../users/users.repository.js';
 
 export interface AuthDependencies {
   userRepository: IUserRepository;
+  authRepository: IAuthRepository;
+  notificationService: INotificationService;
 }
 
 export interface LoginDTO {
@@ -36,4 +40,10 @@ export interface JwtPayloadDTO {
 export interface AuthenticatedUserDTO {
   id: string;
   role: UserRole;
+}
+
+export interface CreateTokenDTO {
+  token: string;
+  userId: string;
+  expiresAt: Date;
 }

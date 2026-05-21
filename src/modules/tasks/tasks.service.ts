@@ -30,7 +30,7 @@ export class TaskService implements ITaskService {
     createTaskSchema.parse(data);
 
     const projectExists = await this.deps.projectRepository.findById(
-      data.projectId
+      data.projectId,
     );
 
     if (!projectExists) {
@@ -41,14 +41,18 @@ export class TaskService implements ITaskService {
   }
 
   async update(data: UpdateTaskWithAuthDTO): Promise<TaskResponseDTO> {
-    updateTaskSchema.parse(data.data)
+    updateTaskSchema.parse(data.data);
 
-    const taskExists = await this.deps.taskRepository.findById(data.targetTaskId);
+    const taskExists = await this.deps.taskRepository.findById(
+      data.targetTaskId,
+    );
     if (!taskExists) {
       throw new Error('Task not found');
     }
 
-    const projectExists = await this.deps.projectRepository.findById(taskExists.projectId);
+    const projectExists = await this.deps.projectRepository.findById(
+      taskExists.projectId,
+    );
     if (!projectExists) {
       throw new Error('Project not found');
     }
@@ -76,12 +80,16 @@ export class TaskService implements ITaskService {
   }
 
   async delete(data: DeleteTaskWithAuthDTO): Promise<void> {
-    const taskExists = await this.deps.taskRepository.findById(data.targetTaskId);
+    const taskExists = await this.deps.taskRepository.findById(
+      data.targetTaskId,
+    );
     if (!taskExists) {
       throw new Error('Task not found');
     }
 
-    const projectExists = await this.deps.projectRepository.findById(taskExists.projectId);
+    const projectExists = await this.deps.projectRepository.findById(
+      taskExists.projectId,
+    );
     if (!projectExists) {
       throw new Error('Project not found');
     }

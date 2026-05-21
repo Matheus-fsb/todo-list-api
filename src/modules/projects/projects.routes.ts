@@ -14,12 +14,25 @@ const projectController = new DependenceFactory(
     userRepository: new UserRepository(),
   },
   ProjectService,
-  ProjectController
+  ProjectController,
 ).getController();
 
 router.post('/', projectController.create.bind(projectController));
-router.get('/users/:userId', authMiddleware, roleMiddleware(['ADMIN']), projectController.findByUser.bind(projectController));
-router.patch('/:id', authMiddleware, projectController.update.bind(projectController));
-router.delete('/:id', authMiddleware, projectController.delete.bind(projectController));
+router.get(
+  '/users/:userId',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  projectController.findByUser.bind(projectController),
+);
+router.patch(
+  '/:id',
+  authMiddleware,
+  projectController.update.bind(projectController),
+);
+router.delete(
+  '/:id',
+  authMiddleware,
+  projectController.delete.bind(projectController),
+);
 
 export default router;

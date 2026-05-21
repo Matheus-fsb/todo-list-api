@@ -10,5 +10,6 @@ declare namespace NodeJS {
     MAIL_USER: string;
     MAIL_PASS: string;
     MAIL_FROM: string;
+    APP_URL: string;
   }
 }

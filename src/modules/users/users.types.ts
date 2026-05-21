@@ -16,6 +16,8 @@ export type UserResponseDTO = {
   id: string;
   name: string;
   email: string;
+  emailVerified: boolean;
+  emailVerifiedAt: Date | null;
 };
 
 export interface DeleteUserDTO {

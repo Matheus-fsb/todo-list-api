@@ -11,20 +11,13 @@ export const createTaskSchema = z.object({
     .max(500, 'Description must have a maximum of 500 characters')
     .optional(),
 
-  status: z
-    .enum(['PENDING', 'IN_PROGRESS', 'COMPLETED'])
-    .default('PENDING'),
+  status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED']).default('PENDING'),
 
-  priority: z
-    .enum(['LOW', 'MEDIUM', 'HIGH'])
-    .optional(),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
 
-  completedAt: z
-    .date()
-    .optional(),
+  completedAt: z.date().optional(),
 
-  projectId: z
-    .string()
+  projectId: z.string(),
 });
 
-export const updateTaskSchema = createTaskSchema.partial()
+export const updateTaskSchema = createTaskSchema.partial();

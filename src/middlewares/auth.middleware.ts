@@ -17,7 +17,7 @@ export interface AuthenticatedRequest extends Request {
 export function authMiddleware(
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const token = req.cookies?.accessToken;
 

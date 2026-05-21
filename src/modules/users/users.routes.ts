@@ -5,24 +5,51 @@ import { UserService } from './users.service.js';
 import { UserController } from './users.controller.js';
 import { authMiddleware } from '../../middlewares/auth.middleware.js';
 import { roleMiddleware } from '../../middlewares/role.middleware.js';
+import { AuthService } from '../auth/auth.service.js';
+import { AuthRepository } from '../auth/auth.repository.js';
 import { NotificationService } from '../notifications/notification.service.js';
-import { MailService } from '../../shared/mail/mail.service.js';
+import { makeMailService } from '../../shared/mail/mail.factory.js';
 
 const router = Router();
+const userRepository = new UserRepository();
+const notificationService = new NotificationService(makeMailService());
+const authService = new AuthService({
+  userRepository,
+  authRepository: new AuthRepository(),
+  notificationService,
+});
 
 const userController = new DependenceFactory(
   {
-    userRepository: new UserRepository(),
-    notificationService: new NotificationService(new MailService(process.env.MAIL_HOST, process.env.MAIL_PORT, process.env.MAIL_USER, process.env.MAIL_PASS, process.env.MAIL_FROM))
+    userRepository,
+    authService,
   },
   UserService,
-  UserController
+  UserController,
 ).getController();
 
 router.post('/', userController.create.bind(userController));
-router.get('/', authMiddleware, roleMiddleware(['ADMIN']), userController.findAll.bind(userController));
-router.get('/:id', authMiddleware, roleMiddleware(['ADMIN']), userController.findById.bind(userController));
-router.delete('/:id', authMiddleware, userController.delete.bind(userController));
-router.patch('/:id', authMiddleware, userController.update.bind(userController));
+router.get(
+  '/',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  userController.findAll.bind(userController),
+);
+router.get(
+  '/:id',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  userController.findById.bind(userController),
+);
+router.delete(
+  '/:id',
+  authMiddleware,
+  userController.delete.bind(userController),
+);
+router.patch(
+  '/:id',
+  authMiddleware,
+  userController.update.bind(userController),
+);
 
 export default router;

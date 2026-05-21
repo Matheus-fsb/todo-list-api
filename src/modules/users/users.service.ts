@@ -9,7 +9,7 @@ import type {
 } from './users.types.js';
 
 import type { IUserRepository } from './users.repository.js';
-import type { INotificationService } from '../notifications/notification.service.js';
+import type { IAuthService } from '../auth/auth.service.js';
 
 export interface IUserService {
   create(data: CreateUserDTO): Promise<UserResponseDTO>;
@@ -21,7 +21,7 @@ export interface IUserService {
 
 type Dependencies = {
   userRepository: IUserRepository;
-  notificationService: INotificationService;
+  authService: IAuthService;
 };
 
 export class UserService implements IUserService {
@@ -43,12 +43,16 @@ export class UserService implements IUserService {
       password: hashedPassword,
     });
 
-    //cria a notificação
     try {
-      await this.deps.notificationService.createWelcomeNotification({name: user.name, email: user.email});
+      await this.deps.authService.generateValidationEmailToken({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      });
     } catch (error: unknown) {
-      if(error instanceof Error){
-        console.error('Error sending welcome email:', error.message)
+      if (error instanceof Error) {
+        console.error('Error sending validation email:', error.message);
       }
     }
 
@@ -56,6 +60,8 @@ export class UserService implements IUserService {
       id: user.id,
       name: user.name,
       email: user.email,
+      emailVerified: user.emailVerified,
+      emailVerifiedAt: user.emailVerifiedAt,
     };
   }
 
@@ -68,7 +74,7 @@ export class UserService implements IUserService {
     }
 
     const userExists = await this.deps.userRepository.findById(
-      data.targetUserId
+      data.targetUserId,
     );
 
     if (!userExists) {
@@ -89,7 +95,7 @@ export class UserService implements IUserService {
     }
 
     const userExists = await this.deps.userRepository.findById(
-      data.targetUserId
+      data.targetUserId,
     );
 
     if (!userExists) {
@@ -98,7 +104,7 @@ export class UserService implements IUserService {
 
     if (data.data.email && data.data.email !== userExists.email) {
       const emailInUse = await this.deps.userRepository.findByEmail(
-        data.data.email
+        data.data.email,
       );
 
       if (emailInUse) {
@@ -114,23 +120,27 @@ export class UserService implements IUserService {
 
     const updatedUser = await this.deps.userRepository.update(
       data.targetUserId,
-      dataToUpdate
+      dataToUpdate,
     );
 
     return {
       id: updatedUser.id,
       name: updatedUser.name,
       email: updatedUser.email,
+      emailVerified: updatedUser.emailVerified,
+      emailVerifiedAt: updatedUser.emailVerifiedAt,
     };
   }
 
   async findAll(): Promise<UserResponseDTO[]> {
     const users = await this.deps.userRepository.findAll();
 
-    return users.map(user => ({
+    return users.map((user) => ({
       id: user.id,
       name: user.name,
       email: user.email,
+      emailVerified: user.emailVerified,
+      emailVerifiedAt: user.emailVerifiedAt,
     }));
   }
 
@@ -145,6 +155,8 @@ export class UserService implements IUserService {
       id: user.id,
       name: user.name,
       email: user.email,
+      emailVerified: user.emailVerified,
+      emailVerifiedAt: user.emailVerifiedAt,
     };
   }
 }
