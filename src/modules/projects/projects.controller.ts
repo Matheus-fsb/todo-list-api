@@ -72,4 +72,24 @@ export class ProjectController implements IProjectController {
 
     return res.status(200).json(successResponse('Project deleted successfully'));
   }
+
+  async softDelete(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const { id } = req.params;
+
+    if (!req.user) {
+      throw new AppError('Unauthorized', 401);
+    }
+
+    if (!id || Array.isArray(id)) {
+      throw new AppError('Invalid id', 400);
+    }
+
+    await this.projectService.softDelete({
+      targetProjectId: id,
+      authenticatedUserId: req.user.id,
+      authenticatedUserRole: req.user.role,
+    });
+
+    return res.status(200).json(successResponse('Project deleted successfully'));
+  }
 }

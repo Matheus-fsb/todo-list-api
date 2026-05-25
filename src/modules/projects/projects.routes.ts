@@ -7,10 +7,18 @@ import { UserRepository } from '../users/users.repository.js';
 import { ProjectService } from './projects.service.js';
 import { ProjectController } from './projects.controller.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
+import { TaskRepository } from '../tasks/tasks.repository.js';
+import { TaskService } from '../tasks/tasks.service.js';
 
 const router = Router();
 const projectController = new DependenceFactory(
-  { projectRepository: new ProjectRepository(), userRepository: new UserRepository() },
+  { projectRepository: new ProjectRepository(), 
+    userRepository: new UserRepository(), 
+    taskRepository: new TaskRepository(), 
+    taskService: new TaskService({ 
+      taskRepository: new TaskRepository(), 
+      projectRepository: new ProjectRepository() 
+    })},
   ProjectService,
   ProjectController,
 ).getController();
@@ -24,5 +32,6 @@ router.get(
 );
 router.patch('/:id', authMiddleware, asyncHandler(projectController.update.bind(projectController)));
 router.delete('/:id', authMiddleware, asyncHandler(projectController.delete.bind(projectController)));
+router.patch('/:id', authMiddleware, asyncHandler(projectController.softDelete.bind(projectController)))
 
 export default router;

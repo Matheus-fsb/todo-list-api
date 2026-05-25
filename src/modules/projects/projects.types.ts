@@ -4,6 +4,8 @@ export type CreateProjectDTO = { name: string; description?: string; userId: str
 
 export type UpdateProjectDTO = Partial<{ name: string; description: string }>;
 
+export type UpdateProjectPersistenceDTO = UpdateProjectDTO & Partial<{ deletedAt: Date | null }>;
+
 export type ProjectResponseDTO = {
   id: string;
   name: string;
