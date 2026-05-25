@@ -24,5 +24,6 @@ router.get(
   asyncHandler(taskController.findByProject.bind(taskController)),
 );
 router.delete('/:id', authMiddleware, asyncHandler(taskController.delete.bind(taskController)));
+router.patch('/:id', authMiddleware, asyncHandler(taskController.softDelete.bind(taskController)));
 
 export default router;

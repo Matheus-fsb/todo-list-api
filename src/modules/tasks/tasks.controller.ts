@@ -65,4 +65,24 @@ export class TaskController {
 
     return res.status(200).json(successResponse('Task deleted successfully'));
   }
+
+  async softDelete(req: AuthenticatedRequest, res: Response): Promise<Response> {
+    const { id } = req.params;
+
+    if (!req.user) {
+      throw new AppError('Unauthorized', 401);
+    }
+
+    if (!id || Array.isArray(id)) {
+      throw new AppError('Invalid id', 400);
+    }
+
+    await this.taskService.softDelete({
+      targetTaskId: id,
+      authenticatedUserId: req.user.id,
+      authenticatedUserRole: req.user.role,
+    });
+
+    return res.status(200).json(successResponse('Task deleted successfully'));
+  }
 }

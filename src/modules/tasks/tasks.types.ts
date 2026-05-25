@@ -20,7 +20,7 @@ export type UpdateTaskDTO = Partial<{
   dueDate: Date | null;
 }>;
 
-export type UpdateTaskPersistenceDTO = UpdateTaskDTO & Partial<{ completedAt: Date | null }>;
+export type UpdateTaskPersistenceDTO = UpdateTaskDTO & Partial<{ completedAt: Date | null; deletedAt: Date | null }>;
 
 export type TaskResponseDTO = {
   id: string;

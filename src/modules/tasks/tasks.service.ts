@@ -18,6 +18,7 @@ export interface ITaskService {
   update(data: UpdateTaskWithAuthDTO): Promise<TaskResponseDTO>;
   findByProject(projectId: string): Promise<TaskResponseDTO[]>;
   delete(data: DeleteTaskWithAuthDTO): Promise<void>;
+  softDelete(data: DeleteTaskWithAuthDTO): Promise<void>;
 }
 
 type Dependencies = { taskRepository: ITaskRepository; projectRepository: IProjectRepository };
@@ -103,5 +104,26 @@ export class TaskService implements ITaskService {
     }
 
     await this.deps.taskRepository.delete(data.targetTaskId);
+  }
+
+  async softDelete(data: DeleteTaskWithAuthDTO): Promise<void> {
+    const taskExists = await this.deps.taskRepository.findById(data.targetTaskId);
+    if (!taskExists) {
+      throw new AppError('Task not found', 404);
+    }
+
+    const projectExists = await this.deps.projectRepository.findById(taskExists.projectId);
+    if (!projectExists) {
+      throw new AppError('Project not found', 404);
+    }
+
+    const isSelfDelete = projectExists.userId === data.authenticatedUserId;
+    const isAdmin = data.authenticatedUserRole === 'ADMIN';
+
+    if (!isSelfDelete && !isAdmin) {
+      throw new AppError('Forbidden', 403);
+    }
+
+    await this.deps.taskRepository.update(data.targetTaskId, { deletedAt: new Date() });
   }
 }
