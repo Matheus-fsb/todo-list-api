@@ -6,10 +6,8 @@ import type {
   DeleteProjectWithAuthDTO,
 } from './projects.types.js';
 import { type IUserRepository } from '../users/users.repository.js';
-import {
-  createProjectSchema,
-  updateProjectSchema,
-} from './projects.schemas.js';
+import { createProjectSchema, updateProjectSchema } from './projects.schemas.js';
+import { AppError } from '../../errors/AppError.js';
 
 export interface IProjectService {
   create(data: CreateProjectDTO): Promise<ProjectResponseDTO>;
@@ -18,10 +16,7 @@ export interface IProjectService {
   delete(data: DeleteProjectWithAuthDTO): Promise<void>;
 }
 
-type Dependencies = {
-  projectRepository: IProjectRepository;
-  userRepository: IUserRepository;
-};
+type Dependencies = { projectRepository: IProjectRepository; userRepository: IUserRepository };
 
 export class ProjectService implements IProjectService {
   constructor(private deps: Dependencies) {}
@@ -32,7 +27,7 @@ export class ProjectService implements IProjectService {
     const userExists = await this.deps.userRepository.findById(data.userId);
 
     if (!userExists) {
-      throw new Error('User not found');
+      throw new AppError('User not found', 404);
     }
 
     const project = await this.deps.projectRepository.create(data);
@@ -47,43 +42,36 @@ export class ProjectService implements IProjectService {
   async update(data: UpdateProjectWithAuthDTO): Promise<ProjectResponseDTO> {
     updateProjectSchema.parse(data.data);
 
-    const projectExists = await this.deps.projectRepository.findById(
-      data.targetProjectId,
-    );
+    const projectExists = await this.deps.projectRepository.findById(data.targetProjectId);
 
     if (!projectExists) {
-      throw new Error('Project not found');
+      throw new AppError('Project not found', 404);
     }
 
     const isSelfUpdate = projectExists.userId === data.authenticatedUserId;
     const isAdmin = data.authenticatedUserRole === 'ADMIN';
 
     if (!isSelfUpdate && !isAdmin) {
-      throw new Error('Forbidden');
+      throw new AppError('Forbidden', 403);
     }
 
-    const updatedProject = await this.deps.projectRepository.update(
-      data.targetProjectId,
-      data.data,
-    );
+    const updatedProject = await this.deps.projectRepository.update(data.targetProjectId, data.data);
 
     return updatedProject;
   }
 
   async delete(data: DeleteProjectWithAuthDTO): Promise<void> {
-    const projectExists = await this.deps.projectRepository.findById(
-      data.targetProjectId,
-    );
+    const projectExists = await this.deps.projectRepository.findById(data.targetProjectId);
 
     if (!projectExists) {
-      throw new Error('Project not found');
+      throw new AppError('Project not found', 404);
     }
 
     const isSelfDelete = projectExists.userId === data.authenticatedUserId;
     const isAdmin = data.authenticatedUserRole === 'ADMIN';
 
     if (!isSelfDelete && !isAdmin) {
-      throw new Error('Forbidden');
+      throw new AppError('Forbidden', 403);
     }
 
     await this.deps.projectRepository.delete(data.targetProjectId);

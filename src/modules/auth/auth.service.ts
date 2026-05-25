@@ -2,20 +2,12 @@ import crypto from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt, { type SignOptions, type Secret } from 'jsonwebtoken';
 
-import type {
-  LoginDTO,
-  AuthResponseDTO,
-  JwtPayloadDTO,
-  AuthDependencies,
-  AuthUserDTO,
-} from './auth.types.js';
+import type { LoginDTO, AuthResponseDTO, JwtPayloadDTO, AuthDependencies, AuthUserDTO } from './auth.types.js';
+import { AppError } from '../../errors/AppError.js';
 
 export interface IAuthService {
   login(data: LoginDTO): Promise<AuthResponseDTO>;
-  refresh(refreshToken: string): Promise<{
-    accessToken: string;
-    refreshToken: string;
-  }>;
+  refresh(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }>;
   generateValidationEmailToken(user: AuthUserDTO): Promise<void>;
   validateEmail(token: string): Promise<void>;
 }
@@ -27,45 +19,27 @@ export class AuthService implements IAuthService {
     const user = await this.dependencies.userRepository.findByEmail(data.email);
 
     if (!user) {
-      throw new Error('Email or password invalid');
+      throw new AppError('Email or password invalid', 401);
     }
 
     const passwordMatches = await bcrypt.compare(data.password, user.password);
 
     if (!passwordMatches) {
-      throw new Error('Email or password invalid');
+      throw new AppError('Email or password invalid', 401);
     }
 
     if (!user.emailVerified) {
-      throw new Error('Email not verified');
+      throw new AppError('Email not verified', 403);
     }
 
-    const accessToken = this.generateAccessToken({
-      sub: user.id,
-      role: user.role,
-    });
+    const accessToken = this.generateAccessToken({ sub: user.id, role: user.role });
 
-    const refreshToken = this.generateRefreshToken({
-      sub: user.id,
-      role: user.role,
-    });
+    const refreshToken = this.generateRefreshToken({ sub: user.id, role: user.role });
 
-    return {
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-      accessToken,
-      refreshToken,
-    };
+    return { user: { id: user.id, name: user.name, email: user.email, role: user.role }, accessToken, refreshToken };
   }
 
-  async refresh(refreshToken: string): Promise<{
-    accessToken: string;
-    refreshToken: string;
-  }> {
+  async refresh(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
     const secret = process.env.JWT_REFRESH_SECRET;
 
     if (!secret) {
@@ -77,40 +51,24 @@ export class AuthService implements IAuthService {
     const user = await this.dependencies.userRepository.findById(payload.sub);
 
     if (!user) {
-      throw new Error('User not found');
+      throw new AppError('User not found', 404);
     }
 
-    const newAccessToken = this.generateAccessToken({
-      sub: user.id,
-      role: user.role,
-    });
+    const newAccessToken = this.generateAccessToken({ sub: user.id, role: user.role });
 
-    const newRefreshToken = this.generateRefreshToken({
-      sub: user.id,
-      role: user.role,
-    });
+    const newRefreshToken = this.generateRefreshToken({ sub: user.id, role: user.role });
 
-    return {
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
-    };
+    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   }
 
   async generateValidationEmailToken(user: AuthUserDTO): Promise<void> {
     const token = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    await this.dependencies.authRepository.create({
-      token,
-      userId: user.id,
-      expiresAt,
-    });
+    await this.dependencies.authRepository.create({ token, userId: user.id, expiresAt });
 
     try {
-      await this.dependencies.notificationService.verifyAccountNotification(
-        user,
-        token,
-      );
+      await this.dependencies.notificationService.verifyAccountNotification(user, token);
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error('Error sending validation email:', error.message);
@@ -119,33 +77,27 @@ export class AuthService implements IAuthService {
   }
 
   async validateEmail(token: string): Promise<void> {
-    const validationToken =
-      await this.dependencies.authRepository.findByToken(token);
+    const validationToken = await this.dependencies.authRepository.findByToken(token);
 
     if (!validationToken) {
-      throw new Error('Invalid validation token');
+      throw new AppError('Invalid validation token', 400);
     }
 
     if (validationToken.expiresAt < new Date()) {
       await this.dependencies.authRepository.delete(validationToken.id);
-      throw new Error('Expired validation token');
+      throw new AppError('Expired validation token', 410);
     }
 
     await this.dependencies.userRepository.verifyEmail(validationToken.userId);
     await this.dependencies.authRepository.delete(validationToken.id);
 
-    const user = await this.dependencies.userRepository.findById(
-      validationToken.userId,
-    );
+    const user = await this.dependencies.userRepository.findById(validationToken.userId);
 
     if (!user) {
-      throw new Error('User not found');
+      throw new AppError('User not found', 404);
     }
 
-    await this.dependencies.notificationService.createWelcomeNotification({
-      name: user.name,
-      email: user.email,
-    });
+    await this.dependencies.notificationService.createWelcomeNotification({ name: user.name, email: user.email });
   }
 
   private generateAccessToken(payload: JwtPayloadDTO): string {
@@ -158,9 +110,7 @@ export class AuthService implements IAuthService {
     const expiresIn: SignOptions['expiresIn'] =
       (process.env.JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn']) || '15m';
 
-    return jwt.sign(payload, secret as Secret, {
-      expiresIn,
-    });
+    return jwt.sign(payload, secret as Secret, { expiresIn });
   }
 
   private generateRefreshToken(payload: JwtPayloadDTO): string {
@@ -173,8 +123,6 @@ export class AuthService implements IAuthService {
     const expiresIn: SignOptions['expiresIn'] =
       (process.env.JWT_REFRESH_EXPIRES_IN as SignOptions['expiresIn']) || '7d';
 
-    return jwt.sign(payload, secret as Secret, {
-      expiresIn,
-    });
+    return jwt.sign(payload, secret as Secret, { expiresIn });
   }
 }

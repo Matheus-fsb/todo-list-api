@@ -10,5 +10,6 @@ export default defineConfig([
     extends: ['js/recommended'],
     languageOptions: { globals: globals.node },
   },
-  tseslint.configs.recommended,
+  ...tseslint.configs.recommended,
+  { rules: { '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }] } },
 ]);

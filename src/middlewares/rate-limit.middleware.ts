@@ -5,9 +5,7 @@ export const globalRateLimiter = rateLimit({
   limit: 100, // 100 requisições por IP dentro da janela
   standardHeaders: true,
   legacyHeaders: false,
-  message: {
-    message: 'Too many requests, please try again later',
-  },
+  message: { message: 'Too many requests, please try again later' },
 });
 
 export const authRateLimiter = rateLimit({
@@ -15,7 +13,5 @@ export const authRateLimiter = rateLimit({
   limit: 5, // 5 tentativas por IP
   standardHeaders: true,
   legacyHeaders: false,
-  message: {
-    message: 'Too many login attempts, please try again later',
-  },
+  message: { message: 'Too many login attempts, please try again later' },
 });

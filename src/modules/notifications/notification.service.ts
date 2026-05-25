@@ -4,19 +4,13 @@ import { NotificationType, type Notification } from './notification.types.js';
 
 export interface INotificationService {
   createWelcomeNotification(user: UserMail): Promise<Notification>;
-  verifyAccountNotification(
-    user: UserMail,
-    token: string,
-  ): Promise<Notification>;
+  verifyAccountNotification(user: UserMail, token: string): Promise<Notification>;
 }
 
 export class NotificationService implements INotificationService {
   constructor(private mailService: IMailService) {}
 
-  async verifyAccountNotification(
-    user: UserMail,
-    token: string,
-  ): Promise<Notification> {
+  async verifyAccountNotification(user: UserMail, token: string): Promise<Notification> {
     const verificationUrl = `${process.env.APP_URL}/auth/verify-email?token=${encodeURIComponent(token)}`;
 
     const html = `

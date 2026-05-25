@@ -14,13 +14,7 @@ export class MailService {
 
   private transport;
 
-  constructor(
-    host: string,
-    port: number,
-    user: string,
-    password: string,
-    from: string,
-  ) {
+  constructor(host: string, port: number, user: string, password: string, from: string) {
     this.host = host;
     this.port = port;
     this.user = user;
@@ -30,10 +24,7 @@ export class MailService {
     this.transport = nodemailer.createTransport({
       host: this.host,
       port: this.port,
-      auth: {
-        user: this.user,
-        pass: this.password,
-      },
+      auth: { user: this.user, pass: this.password },
     });
   }
 

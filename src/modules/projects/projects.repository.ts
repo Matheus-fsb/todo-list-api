@@ -13,15 +13,11 @@ export interface IProjectRepository {
 
 export class ProjectRepository implements IProjectRepository {
   async create(data: CreateProjectDTO): Promise<Project> {
-    return prisma.project.create({
-      data,
-    });
+    return prisma.project.create({ data });
   }
 
   async findById(id: string): Promise<Project | null> {
-    return prisma.project.findUnique({
-      where: { id },
-    });
+    return prisma.project.findUnique({ where: { id } });
   }
 
   async findAll(): Promise<Project[]> {
@@ -29,21 +25,14 @@ export class ProjectRepository implements IProjectRepository {
   }
 
   async findByUser(userId: string): Promise<Project[]> {
-    return prisma.project.findMany({
-      where: { userId },
-    });
+    return prisma.project.findMany({ where: { userId } });
   }
 
   async update(id: string, data: UpdateProjectDTO): Promise<Project> {
-    return prisma.project.update({
-      where: { id },
-      data,
-    });
+    return prisma.project.update({ where: { id }, data });
   }
 
   async delete(id: string): Promise<Project> {
-    return prisma.project.delete({
-      where: { id },
-    });
+    return prisma.project.delete({ where: { id } });
   }
 }

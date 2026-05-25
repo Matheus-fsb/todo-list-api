@@ -1,12 +1,8 @@
 import bcrypt from 'bcrypt';
+import { AppError } from '../../errors/AppError.js';
 import { createUserSchema, updateUserSchema } from './users.schemas.js';
 
-import type {
-  CreateUserDTO,
-  DeleteUserDTO,
-  UpdateUserWithAuthDTO,
-  UserResponseDTO,
-} from './users.types.js';
+import type { CreateUserDTO, DeleteUserDTO, UpdateUserWithAuthDTO, UserResponseDTO } from './users.types.js';
 
 import type { IUserRepository } from './users.repository.js';
 import type { IAuthService } from '../auth/auth.service.js';
@@ -19,10 +15,7 @@ export interface IUserService {
   findById(id: string): Promise<UserResponseDTO>;
 }
 
-type Dependencies = {
-  userRepository: IUserRepository;
-  authService: IAuthService;
-};
+type Dependencies = { userRepository: IUserRepository; authService: IAuthService };
 
 export class UserService implements IUserService {
   constructor(private deps: Dependencies) {}
@@ -33,15 +26,12 @@ export class UserService implements IUserService {
     const userExists = await this.deps.userRepository.findByEmail(data.email);
 
     if (userExists) {
-      throw new Error('User already exists');
+      throw new AppError('User already exists', 409);
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
-    const user = await this.deps.userRepository.create({
-      ...data,
-      password: hashedPassword,
-    });
+    const user = await this.deps.userRepository.create({ ...data, password: hashedPassword });
 
     try {
       await this.deps.authService.generateValidationEmailToken({
@@ -70,15 +60,13 @@ export class UserService implements IUserService {
     const isAdmin = data.authenticatedUserRole === 'ADMIN';
 
     if (!isSelfDelete && !isAdmin) {
-      throw new Error('Forbidden');
+      throw new AppError('Forbidden', 403);
     }
 
-    const userExists = await this.deps.userRepository.findById(
-      data.targetUserId,
-    );
+    const userExists = await this.deps.userRepository.findById(data.targetUserId);
 
     if (!userExists) {
-      throw new Error('User not found');
+      throw new AppError('User not found', 404);
     }
 
     await this.deps.userRepository.delete(data.targetUserId);
@@ -91,24 +79,20 @@ export class UserService implements IUserService {
     const isAdmin = data.authenticatedUserRole === 'ADMIN';
 
     if (!isSelfUpdate && !isAdmin) {
-      throw new Error('Forbidden');
+      throw new AppError('Forbidden', 403);
     }
 
-    const userExists = await this.deps.userRepository.findById(
-      data.targetUserId,
-    );
+    const userExists = await this.deps.userRepository.findById(data.targetUserId);
 
     if (!userExists) {
-      throw new Error('User not found');
+      throw new AppError('User not found', 404);
     }
 
     if (data.data.email && data.data.email !== userExists.email) {
-      const emailInUse = await this.deps.userRepository.findByEmail(
-        data.data.email,
-      );
+      const emailInUse = await this.deps.userRepository.findByEmail(data.data.email);
 
       if (emailInUse) {
-        throw new Error('Email already in use');
+        throw new AppError('Email already in use', 409);
       }
     }
 
@@ -118,10 +102,7 @@ export class UserService implements IUserService {
       dataToUpdate.password = await bcrypt.hash(data.data.password, 10);
     }
 
-    const updatedUser = await this.deps.userRepository.update(
-      data.targetUserId,
-      dataToUpdate,
-    );
+    const updatedUser = await this.deps.userRepository.update(data.targetUserId, dataToUpdate);
 
     return {
       id: updatedUser.id,
@@ -148,7 +129,7 @@ export class UserService implements IUserService {
     const user = await this.deps.userRepository.findById(id);
 
     if (!user) {
-      throw new Error('User not found');
+      throw new AppError('User not found', 404);
     }
 
     return {

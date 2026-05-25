@@ -1,6 +1,1 @@
-export type Mail = {
-  to: string;
-  subject: string;
-  message: string;
-  html?: string;
-};
+export type Mail = { to: string; subject: string; message: string; html?: string };

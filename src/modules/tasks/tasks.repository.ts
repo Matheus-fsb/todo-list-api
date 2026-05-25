@@ -13,15 +13,11 @@ export interface ITaskRepository {
 
 export class TaskRepository implements ITaskRepository {
   async create(data: CreateTaskDTO): Promise<Task> {
-    return prisma.task.create({
-      data,
-    });
+    return prisma.task.create({ data });
   }
 
   async findById(id: string): Promise<Task | null> {
-    return prisma.task.findUnique({
-      where: { id },
-    });
+    return prisma.task.findUnique({ where: { id } });
   }
 
   async findAll(): Promise<Task[]> {
@@ -29,21 +25,14 @@ export class TaskRepository implements ITaskRepository {
   }
 
   async findByProject(projectId: string): Promise<Task[]> {
-    return prisma.task.findMany({
-      where: { projectId },
-    });
+    return prisma.task.findMany({ where: { projectId } });
   }
 
   async update(id: string, data: UpdateTaskDTO): Promise<Task> {
-    return prisma.task.update({
-      where: { id },
-      data,
-    });
+    return prisma.task.update({ where: { id }, data });
   }
 
   async delete(id: string): Promise<Task> {
-    return prisma.task.delete({
-      where: { id },
-    });
+    return prisma.task.delete({ where: { id } });
   }
 }

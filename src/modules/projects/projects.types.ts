@@ -1,9 +1,5 @@
 // DTO para criação
-export type CreateProjectDTO = {
-  name: string;
-  description?: string;
-  userId: string;
-};
+export type CreateProjectDTO = { name: string; description?: string; userId: string };
 
 // DTO para update
 export type UpdateProjectDTO = Partial<CreateProjectDTO>;

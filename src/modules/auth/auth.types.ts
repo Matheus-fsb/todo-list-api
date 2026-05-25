@@ -22,12 +22,7 @@ export interface AuthUserDTO {
 }
 
 export type AuthResponseDTO = {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-  };
+  user: { id: string; name: string; email: string; role: string };
   accessToken: string;
   refreshToken: string;
 };

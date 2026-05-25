@@ -9,6 +9,7 @@ import { authRateLimiter } from '../../middlewares/rate-limit.middleware.js';
 import { AuthRepository } from './auth.repository.js';
 import { NotificationService } from '../notifications/notification.service.js';
 import { makeMailService } from '../../shared/mail/mail.factory.js';
+import { asyncHandler } from '../../utils/asyncHandler.js';
 
 const router = Router();
 
@@ -24,13 +25,9 @@ const authFactory = new DependenceFactory(
 
 const authController = authFactory.getController();
 
-router.post(
-  '/login',
-  authRateLimiter,
-  authController.login.bind(authController),
-);
-router.post('/refresh', authController.refresh.bind(authController));
+router.post('/login', authRateLimiter, asyncHandler(authController.login.bind(authController)));
+router.post('/refresh', asyncHandler(authController.refresh.bind(authController)));
 router.post('/logout', authController.logout.bind(authController));
-router.get('/verify-email', authController.validateEmail.bind(authController));
+router.get('/verify-email', asyncHandler(authController.validateEmail.bind(authController)));
 
 export default router;

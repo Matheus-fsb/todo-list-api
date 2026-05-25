@@ -6,33 +6,23 @@ import { ProjectRepository } from './projects.repository.js';
 import { UserRepository } from '../users/users.repository.js';
 import { ProjectService } from './projects.service.js';
 import { ProjectController } from './projects.controller.js';
+import { asyncHandler } from '../../utils/asyncHandler.js';
 
 const router = Router();
 const projectController = new DependenceFactory(
-  {
-    projectRepository: new ProjectRepository(),
-    userRepository: new UserRepository(),
-  },
+  { projectRepository: new ProjectRepository(), userRepository: new UserRepository() },
   ProjectService,
   ProjectController,
 ).getController();
 
-router.post('/', projectController.create.bind(projectController));
+router.post('/', asyncHandler(projectController.create.bind(projectController)));
 router.get(
   '/users/:userId',
   authMiddleware,
   roleMiddleware(['ADMIN']),
-  projectController.findByUser.bind(projectController),
+  asyncHandler(projectController.findByUser.bind(projectController)),
 );
-router.patch(
-  '/:id',
-  authMiddleware,
-  projectController.update.bind(projectController),
-);
-router.delete(
-  '/:id',
-  authMiddleware,
-  projectController.delete.bind(projectController),
-);
+router.patch('/:id', authMiddleware, asyncHandler(projectController.update.bind(projectController)));
+router.delete('/:id', authMiddleware, asyncHandler(projectController.delete.bind(projectController)));
 
 export default router;

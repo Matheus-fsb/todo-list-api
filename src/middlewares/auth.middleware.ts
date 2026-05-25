@@ -8,23 +8,14 @@ interface JwtPayloadDTO {
 }
 
 export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    role: UserRole;
-  };
+  user?: { id: string; role: UserRole };
 }
 
-export function authMiddleware(
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction,
-) {
+export function authMiddleware(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   const token = req.cookies?.accessToken;
 
   if (!token) {
-    return res.status(401).json({
-      message: 'Unauthorized',
-    });
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 
   try {
@@ -36,15 +27,10 @@ export function authMiddleware(
 
     const decoded = jwt.verify(token, secret) as JwtPayloadDTO;
 
-    req.user = {
-      id: decoded.sub,
-      role: decoded.role,
-    };
+    req.user = { id: decoded.sub, role: decoded.role };
 
     return next();
   } catch {
-    return res.status(401).json({
-      message: 'Invalid or expired token',
-    });
+    return res.status(401).json({ message: 'Invalid or expired token' });
   }
 }

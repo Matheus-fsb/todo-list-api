@@ -10,15 +10,11 @@ export function roleMiddleware(allowedRoles: UserRole[]) {
     const userRole = req.user?.role;
 
     if (!userRole) {
-      return res.status(401).json({
-        message: 'Unauthorized',
-      });
+      return res.status(401).json({ message: 'Unauthorized' });
     }
 
     if (!allowedRoles.includes(userRole)) {
-      return res.status(403).json({
-        message: 'Forbidden',
-      });
+      return res.status(403).json({ message: 'Forbidden' });
     }
 
     return next();

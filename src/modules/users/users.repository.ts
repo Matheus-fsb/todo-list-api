@@ -18,15 +18,11 @@ export class UserRepository implements IUserRepository {
   }
 
   async findById(id: string): Promise<User | null> {
-    return prisma.user.findUnique({
-      where: { id },
-    });
+    return prisma.user.findUnique({ where: { id } });
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return prisma.user.findUnique({
-      where: { email },
-    });
+    return prisma.user.findUnique({ where: { email } });
   }
 
   async findAll(): Promise<User[]> {
@@ -34,25 +30,14 @@ export class UserRepository implements IUserRepository {
   }
 
   async update(id: string, data: UpdateUserDTO): Promise<User> {
-    return prisma.user.update({
-      where: { id },
-      data,
-    });
+    return prisma.user.update({ where: { id }, data });
   }
 
   async verifyEmail(id: string): Promise<User> {
-    return prisma.user.update({
-      where: { id },
-      data: {
-        emailVerified: true,
-        emailVerifiedAt: new Date(),
-      },
-    });
+    return prisma.user.update({ where: { id }, data: { emailVerified: true, emailVerifiedAt: new Date() } });
   }
 
   async delete(id: string): Promise<User> {
-    return prisma.user.delete({
-      where: { id },
-    });
+    return prisma.user.delete({ where: { id } });
   }
 }

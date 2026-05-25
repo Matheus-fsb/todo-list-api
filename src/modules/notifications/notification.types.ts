@@ -10,7 +10,4 @@ export enum NotificationType {
   VERIFY_ACCOUNT = 'VERIFY_ACCOUNT',
 }
 
-export type UserMail = {
-  name: string;
-  email: string;
-};
+export type UserMail = { name: string; email: string };

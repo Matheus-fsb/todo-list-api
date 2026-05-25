@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
-import type { IUserService } from './users.service.js';
+import { AppError } from '../../errors/AppError.js';
 import type { AuthenticatedRequest } from '../auth/auth.request.js';
+import type { IUserService } from './users.service.js';
 
 export interface IUserController {
   create(req: Request, res: Response): Promise<Response>;
@@ -11,144 +12,70 @@ export interface IUserController {
 }
 
 export class UserController implements IUserController {
-  private userService: IUserService;
-
-  constructor(userService: IUserService) {
-    this.userService = userService;
-  }
+  constructor(private userService: IUserService) {}
 
   async create(req: Request, res: Response): Promise<Response> {
-    try {
-      const user = await this.userService.create(req.body);
-      return res.status(201).json(user);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(400).json({ message: error.message });
-      }
-      return res.status(500).json({ message: 'Internal server error' });
-    }
+    const user = await this.userService.create(req.body);
+
+    return res.status(201).json(user);
   }
 
   async update(req: AuthenticatedRequest, res: Response): Promise<Response> {
-    try {
-      const { id } = req.params;
+    const { id } = req.params;
 
-      if (!req.user) {
-        return res.status(401).json({
-          message: 'Unauthorized',
-        });
-      }
-
-      if (!id || Array.isArray(id)) {
-        return res.status(400).json({
-          message: 'Invalid user id',
-        });
-      }
-
-      const updatedUser = await this.userService.update({
-        targetUserId: id,
-        authenticatedUserId: req.user.id,
-        authenticatedUserRole: req.user.role,
-        data: req.body,
-      });
-
-      return res.status(200).json(updatedUser);
-    } catch (error) {
-      if (error instanceof Error && error.message === 'Forbidden') {
-        return res.status(403).json({
-          message: 'Forbidden',
-        });
-      }
-
-      if (error instanceof Error && error.message === 'User not found') {
-        return res.status(404).json({
-          message: 'User not found',
-        });
-      }
-
-      if (error instanceof Error && error.message === 'Email already in use') {
-        return res.status(409).json({
-          message: 'Email already in use',
-        });
-      }
-
-      return res.status(400).json({
-        message: 'Invalid data',
-      });
+    if (!req.user) {
+      throw new AppError('Unauthorized', 401);
     }
+
+    if (!id || Array.isArray(id)) {
+      throw new AppError('Invalid user id', 400);
+    }
+
+    const updatedUser = await this.userService.update({
+      targetUserId: id,
+      authenticatedUserId: req.user.id,
+      authenticatedUserRole: req.user.role,
+      data: req.body,
+    });
+
+    return res.status(200).json(updatedUser);
   }
 
   async delete(req: AuthenticatedRequest, res: Response): Promise<Response> {
-    try {
-      const { id } = req.params;
+    const { id } = req.params;
 
-      if (!req.user) {
-        return res.status(401).json({
-          message: 'Unauthorized',
-        });
-      }
-
-      if (!id || Array.isArray(id)) {
-        return res.status(400).json({
-          message: 'Invalid user id',
-        });
-      }
-
-      await this.userService.delete({
-        targetUserId: id,
-        authenticatedUserId: req.user.id,
-        authenticatedUserRole: req.user.role,
-      });
-
-      return res.status(204).send();
-    } catch (error) {
-      if (error instanceof Error && error.message === 'Forbidden') {
-        return res.status(403).json({
-          message: 'Forbidden',
-        });
-      }
-
-      if (error instanceof Error && error.message === 'User not found') {
-        return res.status(404).json({
-          message: 'User not found',
-        });
-      }
-
-      return res.status(500).json({
-        message: 'Internal server error',
-      });
+    if (!req.user) {
+      throw new AppError('Unauthorized', 401);
     }
+
+    if (!id || Array.isArray(id)) {
+      throw new AppError('Invalid user id', 400);
+    }
+
+    await this.userService.delete({
+      targetUserId: id,
+      authenticatedUserId: req.user.id,
+      authenticatedUserRole: req.user.role,
+    });
+
+    return res.status(204).send();
   }
 
   async findAll(req: Request, res: Response): Promise<Response> {
-    try {
-      const users = await this.userService.findAll();
-      return res.json(users);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(500).json({ message: error.message });
-      }
-      return res.status(500).json({ message: 'Internal server error' });
-    }
+    const users = await this.userService.findAll();
+
+    return res.json(users);
   }
 
   async findById(req: Request, res: Response): Promise<Response> {
-    try {
-      const { id } = req.params;
+    const { id } = req.params;
 
-      if (!id || Array.isArray(id)) {
-        return res.status(400).json({ message: 'Invalid id' });
-      }
-
-      const user = await this.userService.findById(id);
-
-      return res.status(200).json(user);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(404).json({ message: error.message });
-      }
-
-      return res.status(500).json({ message: 'Internal server error' });
+    if (!id || Array.isArray(id)) {
+      throw new AppError('Invalid id', 400);
     }
+
+    const user = await this.userService.findById(id);
+
+    return res.status(200).json(user);
   }
 }

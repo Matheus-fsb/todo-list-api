@@ -16,26 +16,18 @@ export class AuthRepository implements IAuthRepository {
   }
 
   async delete(id: string): Promise<ValidationToken> {
-    return prisma.validationToken.delete({
-      where: { id },
-    });
+    return prisma.validationToken.delete({ where: { id } });
   }
 
   async findByUser(userId: string): Promise<ValidationToken[]> {
-    return prisma.validationToken.findMany({
-      where: { userId },
-    });
+    return prisma.validationToken.findMany({ where: { userId } });
   }
 
   async findById(id: string): Promise<ValidationToken | null> {
-    return prisma.validationToken.findUnique({
-      where: { id },
-    });
+    return prisma.validationToken.findUnique({ where: { id } });
   }
 
   async findByToken(token: string): Promise<ValidationToken | null> {
-    return prisma.validationToken.findUnique({
-      where: { token },
-    });
+    return prisma.validationToken.findUnique({ where: { token } });
   }
 }
