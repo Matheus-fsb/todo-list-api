@@ -18,15 +18,15 @@ export class UserRepository implements IUserRepository {
   }
 
   async findById(id: string): Promise<User | null> {
-    return prisma.user.findUnique({ where: { id } });
+    return prisma.user.findFirst({ where: { id, deletedAt: null } });
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return prisma.user.findUnique({ where: { email } });
+    return prisma.user.findFirst({ where: { email, deletedAt: null } });
   }
 
   async findAll(): Promise<User[]> {
-    return prisma.user.findMany();
+    return prisma.user.findMany({ where: { deletedAt: null } });
   }
 
   async update(id: string, data: UpdateUserDTO): Promise<User> {

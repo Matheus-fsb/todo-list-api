@@ -17,15 +17,15 @@ export class TaskRepository implements ITaskRepository {
   }
 
   async findById(id: string): Promise<Task | null> {
-    return prisma.task.findUnique({ where: { id } });
+    return prisma.task.findFirst({ where: { id, deletedAt: null } });
   }
 
   async findAll(): Promise<Task[]> {
-    return prisma.task.findMany();
+    return prisma.task.findMany({ where: { deletedAt: null } });
   }
 
   async findByProject(projectId: string): Promise<Task[]> {
-    return prisma.task.findMany({ where: { projectId } });
+    return prisma.task.findMany({ where: { projectId, deletedAt: null } });
   }
 
   async update(id: string, data: UpdateTaskPersistenceDTO): Promise<Task> {

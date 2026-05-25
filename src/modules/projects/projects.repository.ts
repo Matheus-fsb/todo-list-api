@@ -17,15 +17,15 @@ export class ProjectRepository implements IProjectRepository {
   }
 
   async findById(id: string): Promise<Project | null> {
-    return prisma.project.findUnique({ where: { id } });
+    return prisma.project.findFirst({ where: { id, deletedAt: null } });
   }
 
   async findAll(): Promise<Project[]> {
-    return prisma.project.findMany();
+    return prisma.project.findMany({ where: { deletedAt: null } });
   }
 
   async findByUser(userId: string): Promise<Project[]> {
-    return prisma.project.findMany({ where: { userId } });
+    return prisma.project.findMany({ where: { userId, deletedAt: null } });
   }
 
   async update(id: string, data: UpdateProjectPersistenceDTO): Promise<Project> {
