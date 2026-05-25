@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { AppError } from '../../errors/AppError.js';
+import { successResponse } from '../../utils/apiResponse.js';
 import type { AuthenticatedRequest } from '../auth/auth.request.js';
 import { type IProjectService } from './projects.service.js';
 
@@ -16,7 +17,7 @@ export class ProjectController implements IProjectController {
   async create(req: Request, res: Response): Promise<Response> {
     const project = await this.projectService.create(req.body);
 
-    return res.status(201).json(project);
+    return res.status(201).json(successResponse('Project created successfully', project));
   }
 
   async findByUser(req: Request, res: Response): Promise<Response> {
@@ -28,7 +29,7 @@ export class ProjectController implements IProjectController {
 
     const projects = await this.projectService.findByUser(userId);
 
-    return res.json(projects);
+    return res.status(200).json(successResponse('Projects listed successfully', projects));
   }
 
   async update(req: AuthenticatedRequest, res: Response): Promise<Response> {
@@ -49,7 +50,7 @@ export class ProjectController implements IProjectController {
       data: req.body,
     });
 
-    return res.status(200).json(updatedProject);
+    return res.status(200).json(successResponse('Project updated successfully', updatedProject));
   }
 
   async delete(req: AuthenticatedRequest, res: Response): Promise<Response> {
@@ -69,6 +70,6 @@ export class ProjectController implements IProjectController {
       authenticatedUserRole: req.user.role,
     });
 
-    return res.status(204).send();
+    return res.status(200).json(successResponse('Project deleted successfully'));
   }
 }

@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { AppError } from '../../errors/AppError.js';
+import { successResponse } from '../../utils/apiResponse.js';
 import type { AuthenticatedRequest } from '../auth/auth.request.js';
 import type { IUserService } from './users.service.js';
 
@@ -17,7 +18,7 @@ export class UserController implements IUserController {
   async create(req: Request, res: Response): Promise<Response> {
     const user = await this.userService.create(req.body);
 
-    return res.status(201).json(user);
+    return res.status(201).json(successResponse('User created successfully', user));
   }
 
   async update(req: AuthenticatedRequest, res: Response): Promise<Response> {
@@ -38,7 +39,7 @@ export class UserController implements IUserController {
       data: req.body,
     });
 
-    return res.status(200).json(updatedUser);
+    return res.status(200).json(successResponse('User updated successfully', updatedUser));
   }
 
   async delete(req: AuthenticatedRequest, res: Response): Promise<Response> {
@@ -58,13 +59,13 @@ export class UserController implements IUserController {
       authenticatedUserRole: req.user.role,
     });
 
-    return res.status(204).send();
+    return res.status(200).json(successResponse('User deleted successfully'));
   }
 
   async findAll(req: Request, res: Response): Promise<Response> {
     const users = await this.userService.findAll();
 
-    return res.json(users);
+    return res.status(200).json(successResponse('Users listed successfully', users));
   }
 
   async findById(req: Request, res: Response): Promise<Response> {
@@ -76,6 +77,6 @@ export class UserController implements IUserController {
 
     const user = await this.userService.findById(id);
 
-    return res.status(200).json(user);
+    return res.status(200).json(successResponse('User found successfully', user));
   }
 }

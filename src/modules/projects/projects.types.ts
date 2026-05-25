@@ -1,15 +1,8 @@
 import type { UserRole } from '../../generated/prisma/enums.js';
 
-export type CreateProjectDTO = {
-  name: string;
-  description?: string;
-  userId: string;
-};
+export type CreateProjectDTO = { name: string; description?: string; userId: string };
 
-export type UpdateProjectDTO = Partial<{
-  name: string;
-  description: string;
-}>;
+export type UpdateProjectDTO = Partial<{ name: string; description: string }>;
 
 export type ProjectResponseDTO = {
   id: string;

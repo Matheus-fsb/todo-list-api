@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { IAuthService } from './auth.service.js';
 import { AppError } from '../../errors/AppError.js';
+import { successResponse } from '../../utils/apiResponse.js';
 
 export class AuthController {
   constructor(private authService: IAuthService) {}
@@ -22,7 +23,7 @@ export class AuthController {
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
-    return res.status(200).json({ user: result.user, message: 'Login successful' });
+    return res.status(200).json(successResponse('Login successful', { user: result.user }));
   }
 
   async refresh(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
@@ -49,7 +50,7 @@ export class AuthController {
         maxAge: 1000 * 60 * 60 * 24 * 7,
       });
 
-      return res.status(200).json({ message: 'Token refreshed successfully' });
+      return res.status(200).json(successResponse('Token refreshed successfully'));
     } catch (error: unknown) {
       res.clearCookie('accessToken');
       res.clearCookie('refreshToken');
@@ -66,7 +67,7 @@ export class AuthController {
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
 
-    return res.status(200).json({ message: 'Logout successful' });
+    return res.status(200).json(successResponse('Logout successful'));
   }
 
   async validateEmail(req: Request, res: Response): Promise<Response> {
@@ -78,14 +79,14 @@ export class AuthController {
 
     await this.authService.validateEmail(token);
 
-    return res.status(200).json({ message: 'Email validated successfully' });
+    return res.status(200).json(successResponse('Email validated successfully'));
   }
 
   async resendVerificationEmail(req: Request, res: Response): Promise<Response> {
-  const { email } = req.body;
+    const { email } = req.body;
 
-  await this.authService.resendVerificationEmail(email);
+    await this.authService.resendVerificationEmail(email);
 
-  return res.status(204).send();
-}
+    return res.status(200).json(successResponse('Verification email resent successfully'));
+  }
 }

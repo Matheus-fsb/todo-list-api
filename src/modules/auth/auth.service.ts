@@ -17,7 +17,7 @@ export interface IAuthService {
   refresh(refreshToken: string): Promise<TokenPairDTO>;
   generateValidationEmailToken(user: AuthUserDTO): Promise<void>;
   validateEmail(token: string): Promise<void>;
-  resendVerificationEmail(email: string): Promise<void>
+  resendVerificationEmail(email: string): Promise<void>;
 }
 
 export class AuthService implements IAuthService {

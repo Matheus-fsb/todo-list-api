@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import type { AuthenticatedUserDTO, JwtPayload } from '../modules/auth/auth.types.js';
+import { errorResponse } from '../utils/apiResponse.js';
 
 export interface AuthenticatedRequest extends Request {
   user?: AuthenticatedUserDTO;
@@ -32,7 +33,7 @@ export function authMiddleware(req: AuthenticatedRequest, res: Response, next: N
   const token = getAccessToken(req);
 
   if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json(errorResponse('Unauthorized'));
   }
 
   try {
@@ -48,6 +49,6 @@ export function authMiddleware(req: AuthenticatedRequest, res: Response, next: N
 
     return next();
   } catch {
-    return res.status(401).json({ message: 'Invalid or expired token' });
+    return res.status(401).json(errorResponse('Invalid or expired token'));
   }
 }

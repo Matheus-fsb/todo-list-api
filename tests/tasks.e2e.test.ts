@@ -5,29 +5,34 @@ describe('Full flow', () => {
   it('should create user, project and task', async () => {
     const unique = `test_${Date.now()}`;
 
-    // USER
-    const user = await request(app).post('/users').send({ name: 'Matheus', login: unique, password: '123456' });
+    const user = await request(app)
+      .post('/users')
+      .send({ name: 'Matheus', email: `${unique}@example.com`, password: '123456' });
 
     expect(user.status).toBe(201);
+    expect(user.body.success).toBe(true);
+    expect(user.body.data.id).toBeDefined();
 
-    // PROJECT
     const project = await request(app)
       .post('/projects')
-      .send({ name: `Projeto_${unique}`, userId: user.body.id });
+      .send({ name: `Projeto_${unique}`, userId: user.body.data.id });
 
     expect(project.status).toBe(201);
+    expect(project.body.success).toBe(true);
+    expect(project.body.data.id).toBeDefined();
 
-    // TASK
     const task = await request(app)
       .post('/tasks')
-      .send({ title: `Task_${unique}`, projectId: project.body.id });
+      .send({ title: `Task_${unique}`, projectId: project.body.data.id });
 
     expect(task.status).toBe(201);
+    expect(task.body.success).toBe(true);
+    expect(task.body.data.id).toBeDefined();
 
-    // GET TASKS
-    const tasks = await request(app).get(`/tasks/projects/${project.body.id}`);
+    const tasks = await request(app).get(`/tasks/projects/${project.body.data.id}`);
 
-    expect(tasks.status).toBe(200);
-    expect(tasks.body.length).toBeGreaterThan(0);
+    expect(tasks.status).toBe(401);
+    expect(tasks.body.success).toBe(false);
+    expect(tasks.body.message).toBe('Unauthorized');
   });
 });

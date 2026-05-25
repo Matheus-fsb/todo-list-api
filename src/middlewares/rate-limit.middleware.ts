@@ -1,17 +1,18 @@
 import rateLimit from 'express-rate-limit';
+import { errorResponse } from '../utils/apiResponse.js';
 
 export const globalRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  limit: 100, // 100 requisições por IP dentro da janela
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { message: 'Too many requests, please try again later' },
+  message: errorResponse('Too many requests, please try again later'),
 });
 
 export const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  limit: 5, // 5 tentativas por IP
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { message: 'Too many login attempts, please try again later' },
+  message: errorResponse('Too many login attempts, please try again later'),
 });

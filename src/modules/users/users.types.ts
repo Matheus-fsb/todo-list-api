@@ -1,17 +1,8 @@
 import type { UserRole } from '../../generated/prisma/enums.js';
 
-export type CreateUserDTO = {
-  name: string;
-  email: string;
-  password: string;
-  role?: UserRole;
-};
+export type CreateUserDTO = { name: string; email: string; password: string; role?: UserRole };
 
-export type UpdateUserDTO = Partial<{
-  name: string;
-  email: string;
-  password: string;
-}>;
+export type UpdateUserDTO = Partial<{ name: string; email: string; password: string }>;
 
 export type UserResponseDTO = {
   id: string;
@@ -21,11 +12,7 @@ export type UserResponseDTO = {
   emailVerifiedAt: Date | null;
 };
 
-export type DeleteUserDTO = {
-  targetUserId: string;
-  authenticatedUserId: string;
-  authenticatedUserRole: UserRole;
-};
+export type DeleteUserDTO = { targetUserId: string; authenticatedUserId: string; authenticatedUserRole: UserRole };
 
 export type UpdateUserWithAuthDTO = {
   targetUserId: string;

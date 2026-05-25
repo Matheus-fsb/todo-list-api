@@ -5,6 +5,7 @@ import router from './routes.js';
 import cookieParser from 'cookie-parser';
 import { globalRateLimiter } from './middlewares/rate-limit.middleware.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
+import { successResponse } from './utils/apiResponse.js';
 
 const app = express();
 
@@ -17,7 +18,7 @@ app.use(cookieParser());
 app.use(router);
 
 app.get('/', (req: Request, res: Response) => {
-  return res.send(`API funcionando perfeitamente na porta ${process.env.PORT}`);
+  return res.status(200).json(successResponse('API is running', { port: process.env.PORT }));
 });
 
 app.use(errorMiddleware);

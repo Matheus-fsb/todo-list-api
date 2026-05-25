@@ -3,10 +3,7 @@ export enum NotificationType {
   VERIFY_ACCOUNT = 'VERIFY_ACCOUNT',
 }
 
-export type NotificationRecipientDTO = {
-  name: string;
-  email: string;
-};
+export type NotificationRecipientDTO = { name: string; email: string };
 
 export type NotificationDTO = {
   destination: NotificationRecipientDTO;

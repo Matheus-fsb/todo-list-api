@@ -5,7 +5,7 @@ import type { CreateValidationTokenDTO } from './auth.types.js';
 export interface IAuthRepository {
   create(data: CreateValidationTokenDTO): Promise<ValidationToken>;
   delete(id: string): Promise<ValidationToken>;
-  deleteByUser(userId: string): Promise<{ count: number }>
+  deleteByUser(userId: string): Promise<{ count: number }>;
   findByUser(userId: string): Promise<ValidationToken[]>;
   findById(id: string): Promise<ValidationToken | null>;
   findByToken(token: string): Promise<ValidationToken | null>;

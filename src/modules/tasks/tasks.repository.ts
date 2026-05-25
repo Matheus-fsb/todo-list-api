@@ -36,4 +36,3 @@ export class TaskRepository implements ITaskRepository {
     return prisma.task.delete({ where: { id } });
   }
 }
-
