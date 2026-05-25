@@ -2,12 +2,12 @@ import crypto from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt, { type SignOptions, type Secret } from 'jsonwebtoken';
 
-import type { LoginDTO, AuthResponseDTO, JwtPayloadDTO, AuthDependencies, AuthUserDTO } from './auth.types.js';
+import type { AuthDependencies, AuthResponseDTO, AuthUserDTO, JwtPayload, LoginDTO, TokenPairDTO } from './auth.types.js';
 import { AppError } from '../../errors/AppError.js';
 
 export interface IAuthService {
   login(data: LoginDTO): Promise<AuthResponseDTO>;
-  refresh(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }>;
+  refresh(refreshToken: string): Promise<TokenPairDTO>;
   generateValidationEmailToken(user: AuthUserDTO): Promise<void>;
   validateEmail(token: string): Promise<void>;
 }
@@ -39,14 +39,14 @@ export class AuthService implements IAuthService {
     return { user: { id: user.id, name: user.name, email: user.email, role: user.role }, accessToken, refreshToken };
   }
 
-  async refresh(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+  async refresh(refreshToken: string): Promise<TokenPairDTO> {
     const secret = process.env.JWT_REFRESH_SECRET;
 
     if (!secret) {
       throw new Error('JWT_REFRESH_SECRET is not defined');
     }
 
-    const payload = jwt.verify(refreshToken, secret as Secret) as JwtPayloadDTO;
+    const payload = jwt.verify(refreshToken, secret as Secret) as JwtPayload;
 
     const user = await this.dependencies.userRepository.findById(payload.sub);
 
@@ -100,7 +100,7 @@ export class AuthService implements IAuthService {
     await this.dependencies.notificationService.createWelcomeNotification({ name: user.name, email: user.email });
   }
 
-  private generateAccessToken(payload: JwtPayloadDTO): string {
+  private generateAccessToken(payload: JwtPayload): string {
     const secret = process.env.JWT_ACCESS_SECRET;
 
     if (!secret) {
@@ -113,7 +113,7 @@ export class AuthService implements IAuthService {
     return jwt.sign(payload, secret as Secret, { expiresIn });
   }
 
-  private generateRefreshToken(payload: JwtPayloadDTO): string {
+  private generateRefreshToken(payload: JwtPayload): string {
     const secret = process.env.JWT_REFRESH_SECRET;
 
     if (!secret) {

@@ -1,28 +1,34 @@
-// DTO para criação
-export type CreateProjectDTO = { name: string; description?: string; userId: string };
+import type { UserRole } from '../../generated/prisma/enums.js';
 
-// DTO para update
-export type UpdateProjectDTO = Partial<CreateProjectDTO>;
+export type CreateProjectDTO = {
+  name: string;
+  description?: string;
+  userId: string;
+};
+
+export type UpdateProjectDTO = Partial<{
+  name: string;
+  description: string;
+}>;
+
+export type ProjectResponseDTO = {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+};
 
 export type UpdateProjectWithAuthDTO = {
   targetProjectId: string;
   authenticatedUserId: string;
-  authenticatedUserRole: string;
+  authenticatedUserRole: UserRole;
   data: UpdateProjectDTO;
 };
 
 export type DeleteProjectWithAuthDTO = {
   targetProjectId: string;
   authenticatedUserId: string;
-  authenticatedUserRole: string;
-};
-
-// DTO de resposta
-export type ProjectResponseDTO = {
-  id: string;
-  name: string;
-  description?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  userId: string;
+  authenticatedUserRole: UserRole;
 };

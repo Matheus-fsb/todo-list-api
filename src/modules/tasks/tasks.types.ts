@@ -1,47 +1,52 @@
-export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
-export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
+import type { Priority, Status, UserRole } from '../../generated/prisma/enums.js';
 
-// DTO para criação
+export type TaskStatus = Status;
+export type TaskPriority = Priority;
+
 export type CreateTaskDTO = {
   title: string;
   description?: string;
-  status?: TaskStatus; // opcional porque tem default
+  status?: TaskStatus;
   priority?: TaskPriority;
   projectId: string;
+  dueDate?: Date | null;
 };
 
-// DTO para update
 export type UpdateTaskDTO = Partial<{
   title: string;
-  description?: string;
+  description: string;
   status: TaskStatus;
-  priority?: TaskPriority;
-  projectId: string;
-  completedAt: Date | null;
+  priority: TaskPriority;
+  dueDate: Date | null;
 }>;
+
+export type UpdateTaskPersistenceDTO = UpdateTaskDTO &
+  Partial<{
+    completedAt: Date | null;
+  }>;
+
+export type TaskResponseDTO = {
+  id: string;
+  title: string;
+  description: string | null;
+  status: TaskStatus;
+  priority: TaskPriority | null;
+  createdAt: Date;
+  updatedAt: Date;
+  completedAt: Date | null;
+  dueDate: Date | null;
+  projectId: string;
+};
 
 export type UpdateTaskWithAuthDTO = {
   targetTaskId: string;
   authenticatedUserId: string;
-  authenticatedUserRole: string;
+  authenticatedUserRole: UserRole;
   data: UpdateTaskDTO;
 };
 
 export type DeleteTaskWithAuthDTO = {
   targetTaskId: string;
   authenticatedUserId: string;
-  authenticatedUserRole: string;
-};
-
-// DTO de resposta
-export type TaskResponseDTO = {
-  id: string;
-  title: string;
-  description?: string | null;
-  status: TaskStatus;
-  priority?: TaskPriority | null;
-  createdAt: Date;
-  updatedAt: Date;
-  completedAt?: Date | null;
-  projectId: string;
+  authenticatedUserRole: UserRole;
 };

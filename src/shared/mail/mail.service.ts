@@ -1,8 +1,8 @@
 import nodemailer from 'nodemailer';
-import type { Mail } from './mail.types.js';
+import type { MailDTO } from './mail.types.js';
 
 export interface IMailService {
-  send(mail: Mail): Promise<unknown>;
+  send(mail: MailDTO): Promise<unknown>;
 }
 
 export class MailService {
@@ -28,7 +28,7 @@ export class MailService {
     });
   }
 
-  send(mail: Mail) {
+  send(mail: MailDTO) {
     return this.transport.sendMail({
       from: this.from,
       to: mail.to,

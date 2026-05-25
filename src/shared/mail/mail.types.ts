@@ -1,1 +1,6 @@
-export type Mail = { to: string; subject: string; message: string; html?: string };
+export type MailDTO = {
+  to: string;
+  subject: string;
+  message: string;
+  html?: string;
+};

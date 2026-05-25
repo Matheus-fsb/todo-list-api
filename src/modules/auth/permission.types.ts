@@ -1,5 +1,5 @@
 import type { UserRole } from '../../generated/prisma/enums.js';
 
-export interface PermissionRule {
+export type PermissionRule = {
   roles: UserRole[];
-}
+};

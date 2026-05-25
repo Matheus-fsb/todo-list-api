@@ -1,9 +1,9 @@
 import type { ValidationToken } from '../../generated/prisma/client.js';
 import { prisma } from '../../lib/prisma.js';
-import type { CreateTokenDTO } from './auth.types.js';
+import type { CreateValidationTokenDTO } from './auth.types.js';
 
 export interface IAuthRepository {
-  create(data: CreateTokenDTO): Promise<ValidationToken>;
+  create(data: CreateValidationTokenDTO): Promise<ValidationToken>;
   delete(id: string): Promise<ValidationToken>;
   findByUser(userId: string): Promise<ValidationToken[]>;
   findById(id: string): Promise<ValidationToken | null>;
@@ -11,7 +11,7 @@ export interface IAuthRepository {
 }
 
 export class AuthRepository implements IAuthRepository {
-  async create(data: CreateTokenDTO): Promise<ValidationToken> {
+  async create(data: CreateValidationTokenDTO): Promise<ValidationToken> {
     return prisma.validationToken.create({ data });
   }
 

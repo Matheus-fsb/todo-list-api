@@ -1,12 +1,18 @@
-import type { UserRole } from '../../generated/prisma/client.js';
+import type { UserRole } from '../../generated/prisma/enums.js';
 
-// Dados para criação de usuário
-export type CreateUserDTO = { name: string; email: string; password: string; role?: UserRole };
+export type CreateUserDTO = {
+  name: string;
+  email: string;
+  password: string;
+  role?: UserRole;
+};
 
-// Dados para atualização (campos opcionais)
-export type UpdateUserDTO = Partial<CreateUserDTO>;
+export type UpdateUserDTO = Partial<{
+  name: string;
+  email: string;
+  password: string;
+}>;
 
-// Dados que serão retornados pela API (sem senha)
 export type UserResponseDTO = {
   id: string;
   name: string;
@@ -15,15 +21,15 @@ export type UserResponseDTO = {
   emailVerifiedAt: Date | null;
 };
 
-export interface DeleteUserDTO {
+export type DeleteUserDTO = {
   targetUserId: string;
   authenticatedUserId: string;
   authenticatedUserRole: UserRole;
-}
+};
 
-export interface UpdateUserWithAuthDTO {
+export type UpdateUserWithAuthDTO = {
   targetUserId: string;
   authenticatedUserId: string;
   authenticatedUserRole: UserRole;
   data: UpdateUserDTO;
-}
+};

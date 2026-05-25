@@ -1,16 +1,15 @@
 import type { IMailService } from '../../shared/mail/mail.service.js';
-import type { UserMail } from './notification.types.js';
-import { NotificationType, type Notification } from './notification.types.js';
+import { NotificationType, type NotificationDTO, type NotificationRecipientDTO } from './notification.types.js';
 
 export interface INotificationService {
-  createWelcomeNotification(user: UserMail): Promise<Notification>;
-  verifyAccountNotification(user: UserMail, token: string): Promise<Notification>;
+  createWelcomeNotification(user: NotificationRecipientDTO): Promise<NotificationDTO>;
+  verifyAccountNotification(user: NotificationRecipientDTO, token: string): Promise<NotificationDTO>;
 }
 
 export class NotificationService implements INotificationService {
   constructor(private mailService: IMailService) {}
 
-  async verifyAccountNotification(user: UserMail, token: string): Promise<Notification> {
+  async verifyAccountNotification(user: NotificationRecipientDTO, token: string): Promise<NotificationDTO> {
     const verificationUrl = `${process.env.APP_URL}/auth/verify-email?token=${encodeURIComponent(token)}`;
 
     const html = `
@@ -40,7 +39,7 @@ export class NotificationService implements INotificationService {
     </div>
   `;
 
-    const notification: Notification = {
+    const notification: NotificationDTO = {
       destination: { name: user.name, email: user.email },
       message: html,
       subject: `Verificação de Email de ${user.name}`,
@@ -57,8 +56,8 @@ export class NotificationService implements INotificationService {
     return notification;
   }
 
-  async createWelcomeNotification(user: UserMail): Promise<Notification> {
-    const notification: Notification = {
+  async createWelcomeNotification(user: NotificationRecipientDTO): Promise<NotificationDTO> {
+    const notification: NotificationDTO = {
       destination: { name: user.name, email: user.email },
       message: `Quero te agradecer por registrar sua conta e ser mais um dos nossos!`,
       subject: `Bem-vindo ao To-Do List, ${user.name}`,

@@ -1,13 +1,13 @@
 import { prisma } from '../../lib/prisma.js';
 import type { Task } from '../../generated/prisma/client.js';
-import type { CreateTaskDTO, UpdateTaskDTO } from './tasks.types.js';
+import type { CreateTaskDTO, UpdateTaskPersistenceDTO } from './tasks.types.js';
 
 export interface ITaskRepository {
   create(data: CreateTaskDTO): Promise<Task>;
   findById(id: string): Promise<Task | null>;
   findAll(): Promise<Task[]>;
   findByProject(projectId: string): Promise<Task[]>;
-  update(id: string, data: UpdateTaskDTO): Promise<Task>;
+  update(id: string, data: UpdateTaskPersistenceDTO): Promise<Task>;
   delete(id: string): Promise<Task>;
 }
 
@@ -28,7 +28,7 @@ export class TaskRepository implements ITaskRepository {
     return prisma.task.findMany({ where: { projectId } });
   }
 
-  async update(id: string, data: UpdateTaskDTO): Promise<Task> {
+  async update(id: string, data: UpdateTaskPersistenceDTO): Promise<Task> {
     return prisma.task.update({ where: { id }, data });
   }
 
@@ -36,3 +36,4 @@ export class TaskRepository implements ITaskRepository {
     return prisma.task.delete({ where: { id } });
   }
 }
+
