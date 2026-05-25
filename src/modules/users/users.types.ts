@@ -4,6 +4,8 @@ export type CreateUserDTO = { name: string; email: string; password: string; rol
 
 export type UpdateUserDTO = Partial<{ name: string; email: string; password: string }>;
 
+export type UpdateUserPersistenceDTO = UpdateUserDTO & Partial<{ deletedAt: Date }>;
+
 export type UserResponseDTO = {
   id: string;
   name: string;

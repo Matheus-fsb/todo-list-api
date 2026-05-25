@@ -99,7 +99,7 @@ export class ProjectService implements IProjectService {
       throw new AppError('Forbidden', 403);
     }
 
-    const tasks = await this.deps.taskRepository.findByProject(data.targetProjectId);
+    const tasks = await this.deps.taskService.findByProject(data.targetProjectId);
 
     for (const task of tasks) {
       await this.deps.taskService.softDelete({

@@ -9,6 +9,7 @@ export interface IProjectController {
   findByUser(req: Request, res: Response): Promise<Response>;
   update(req: Request, res: Response): Promise<Response>;
   delete(req: Request, res: Response): Promise<Response>;
+  softDelete(req: Request, res: Response): Promise<Response>;
 }
 
 export class ProjectController implements IProjectController {

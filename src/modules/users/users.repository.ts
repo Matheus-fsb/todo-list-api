@@ -1,13 +1,13 @@
 import { prisma } from '../../lib/prisma.js';
 import type { User } from '../../generated/prisma/client.js';
-import type { CreateUserDTO, UpdateUserDTO } from './users.types.js';
+import type { CreateUserDTO, UpdateUserDTO, UpdateUserPersistenceDTO } from './users.types.js';
 
 export interface IUserRepository {
   create(data: CreateUserDTO): Promise<User>;
   findById(id: string): Promise<User | null>;
   findByEmail(email: string): Promise<User | null>;
   findAll(): Promise<User[]>;
-  update(id: string, data: UpdateUserDTO): Promise<User>;
+  update(id: string, data: UpdateUserPersistenceDTO): Promise<User>;
   verifyEmail(id: string): Promise<User>;
   delete(id: string): Promise<User>;
 }

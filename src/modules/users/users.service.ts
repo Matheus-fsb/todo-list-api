@@ -6,6 +6,7 @@ import type { CreateUserDTO, DeleteUserDTO, UpdateUserWithAuthDTO, UserResponseD
 
 import type { IUserRepository } from './users.repository.js';
 import type { IAuthService } from '../auth/auth.service.js';
+import type { ProjectService } from '../projects/projects.service.js';
 
 export interface IUserService {
   create(data: CreateUserDTO): Promise<UserResponseDTO>;
@@ -13,9 +14,10 @@ export interface IUserService {
   delete(data: DeleteUserDTO): Promise<void>;
   update(data: UpdateUserWithAuthDTO): Promise<UserResponseDTO>;
   findById(id: string): Promise<UserResponseDTO>;
+  softDelete(data: DeleteUserDTO): Promise<void>
 }
 
-type Dependencies = { userRepository: IUserRepository; authService: IAuthService };
+type Dependencies = { userRepository: IUserRepository; authService: IAuthService, projectService: ProjectService };
 
 export class UserService implements IUserService {
   constructor(private deps: Dependencies) {}
@@ -139,5 +141,32 @@ export class UserService implements IUserService {
       emailVerified: user.emailVerified,
       emailVerifiedAt: user.emailVerifiedAt,
     };
+  }
+
+  async softDelete(data:  DeleteUserDTO): Promise<void> {
+    const isSelfDelete = data.targetUserId === data.authenticatedUserId;
+    const isAdmin = data.authenticatedUserRole === 'ADMIN';
+
+    if (!isSelfDelete && !isAdmin) {
+      throw new AppError('Forbidden', 403);
+    }
+
+    const userExists = await this.deps.userRepository.findById(data.targetUserId);
+
+    if (!userExists) {
+      throw new AppError('User not found', 404);
+    }
+
+    const projects = await this.deps.projectService.findByUser(data.targetUserId)
+
+    for(const project of projects){
+      await this.deps.projectService.softDelete({
+        targetProjectId: project.id,
+        authenticatedUserId: data.authenticatedUserId,
+        authenticatedUserRole: data.authenticatedUserRole,
+      })
+    }
+
+    await this.deps.userRepository.update(data.targetUserId, { deletedAt: new Date() });
   }
 }

@@ -10,14 +10,22 @@ import { AuthRepository } from '../auth/auth.repository.js';
 import { NotificationService } from '../notifications/notification.service.js';
 import { makeMailService } from '../../shared/mail/mail.factory.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
+import { ProjectService } from '../projects/projects.service.js';
+import { ProjectRepository } from '../projects/projects.repository.js';
+import { TaskRepository } from '../tasks/tasks.repository.js';
+import { TaskService } from '../tasks/tasks.service.js';
 
 const router = Router();
 const userRepository = new UserRepository();
+const projectRepository = new ProjectRepository();
+const taskRepository = new TaskRepository();
+const taskService = new TaskService({ taskRepository, projectRepository });
+const projectService = new ProjectService({ projectRepository, userRepository, taskRepository, taskService });
 const notificationService = new NotificationService(makeMailService());
 const authService = new AuthService({ userRepository, authRepository: new AuthRepository(), notificationService });
 
 const userController = new DependenceFactory(
-  { userRepository, authService },
+  { userRepository, authService, projectService },
   UserService,
   UserController,
 ).getController();
@@ -32,5 +40,6 @@ router.get(
 );
 router.delete('/:id', authMiddleware, asyncHandler(userController.delete.bind(userController)));
 router.patch('/:id', authMiddleware, asyncHandler(userController.update.bind(userController)));
+router.patch('/:id/soft-delete', authMiddleware, asyncHandler(userController.softDelete.bind(userController)));
 
 export default router;

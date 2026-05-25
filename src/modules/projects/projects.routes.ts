@@ -11,14 +11,13 @@ import { TaskRepository } from '../tasks/tasks.repository.js';
 import { TaskService } from '../tasks/tasks.service.js';
 
 const router = Router();
+const projectRepository = new ProjectRepository();
+const userRepository = new UserRepository();
+const taskRepository = new TaskRepository();
+const taskService = new TaskService({ taskRepository, projectRepository });
+
 const projectController = new DependenceFactory(
-  { projectRepository: new ProjectRepository(), 
-    userRepository: new UserRepository(), 
-    taskRepository: new TaskRepository(), 
-    taskService: new TaskService({ 
-      taskRepository: new TaskRepository(), 
-      projectRepository: new ProjectRepository() 
-    })},
+  { projectRepository, userRepository, taskRepository, taskService },
   ProjectService,
   ProjectController,
 ).getController();
@@ -32,6 +31,6 @@ router.get(
 );
 router.patch('/:id', authMiddleware, asyncHandler(projectController.update.bind(projectController)));
 router.delete('/:id', authMiddleware, asyncHandler(projectController.delete.bind(projectController)));
-router.patch('/:id', authMiddleware, asyncHandler(projectController.softDelete.bind(projectController)))
+router.patch('/:id/soft-delete', authMiddleware, asyncHandler(projectController.softDelete.bind(projectController)));
 
 export default router;
