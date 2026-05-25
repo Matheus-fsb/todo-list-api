@@ -54,3 +54,8 @@ export type CreateValidationTokenDTO = {
   userId: string;
   expiresAt: Date;
 };
+
+export type UpdateValidationTokenDTO = Partial<{
+  token: string;
+  expiresAt: Date;
+}>

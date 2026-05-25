@@ -2,7 +2,14 @@ import crypto from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt, { type SignOptions, type Secret } from 'jsonwebtoken';
 
-import type { AuthDependencies, AuthResponseDTO, AuthUserDTO, JwtPayload, LoginDTO, TokenPairDTO } from './auth.types.js';
+import type {
+  AuthDependencies,
+  AuthResponseDTO,
+  AuthUserDTO,
+  JwtPayload,
+  LoginDTO,
+  TokenPairDTO,
+} from './auth.types.js';
 import { AppError } from '../../errors/AppError.js';
 
 export interface IAuthService {
@@ -10,6 +17,7 @@ export interface IAuthService {
   refresh(refreshToken: string): Promise<TokenPairDTO>;
   generateValidationEmailToken(user: AuthUserDTO): Promise<void>;
   validateEmail(token: string): Promise<void>;
+  resendVerificationEmail(email: string): Promise<void>
 }
 
 export class AuthService implements IAuthService {
@@ -74,6 +82,22 @@ export class AuthService implements IAuthService {
         console.error('Error sending validation email:', error.message);
       }
     }
+  }
+
+  async resendVerificationEmail(email: string): Promise<void> {
+    const user = await this.dependencies.userRepository.findByEmail(email);
+
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+
+    if (user.emailVerified) {
+      throw new AppError('Email already verified', 409);
+    }
+
+    await this.dependencies.authRepository.deleteByUser(user.id);
+
+    await this.generateValidationEmailToken({ id: user.id, name: user.name, email: user.email, role: user.role });
   }
 
   async validateEmail(token: string): Promise<void> {

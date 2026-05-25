@@ -80,4 +80,12 @@ export class AuthController {
 
     return res.status(200).json({ message: 'Email validated successfully' });
   }
+
+  async resendVerificationEmail(req: Request, res: Response): Promise<Response> {
+  const { email } = req.body;
+
+  await this.authService.resendVerificationEmail(email);
+
+  return res.status(204).send();
+}
 }

@@ -29,5 +29,6 @@ router.post('/login', authRateLimiter, asyncHandler(authController.login.bind(au
 router.post('/refresh', asyncHandler(authController.refresh.bind(authController)));
 router.post('/logout', authController.logout.bind(authController));
 router.get('/verify-email', asyncHandler(authController.validateEmail.bind(authController)));
+router.post('/resend-verification-token', asyncHandler(authController.resendVerificationEmail.bind(authController)));
 
 export default router;
