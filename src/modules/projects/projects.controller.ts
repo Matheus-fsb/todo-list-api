@@ -160,7 +160,7 @@ export class ProjectController implements IProjectController {
       throw new AppError('Invalid userId', 400);
     }
 
-    const projects = await this.projectService.findByUser(userId);
+    const projects = await this.projectService.findByUser(userId, this.parseProjectFilters(req));
 
     return res.status(200).json(successResponse('Projects listed successfully', projects));
   }

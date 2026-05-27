@@ -26,7 +26,8 @@ export interface IProjectService {
     filters: FindProjectsFiltersDTO,
   ): Promise<PaginatedResponse<ProjectResponseDTO>>;
   findTasks(data: FindProjectWithAuthDTO, filters: FindTasksFiltersDTO): Promise<PaginatedResponse<TaskResponseDTO>>;
-  findByUser(userId: string): Promise<ProjectResponseDTO[]>;
+  findByUser(userId: string, filters: FindProjectsFiltersDTO): Promise<PaginatedResponse<ProjectResponseDTO>>;
+  findAllByUser(userId: string): Promise<ProjectResponseDTO[]>;
   update(data: UpdateProjectWithAuthDTO): Promise<ProjectResponseDTO>;
   delete(data: DeleteProjectWithAuthDTO): Promise<void>;
   softDelete(data: DeleteProjectWithAuthDTO): Promise<void>;
@@ -85,7 +86,7 @@ export class ProjectService implements IProjectService {
   }
 
   async findMine(userId: string, filters: FindProjectsFiltersDTO): Promise<PaginatedResponse<ProjectResponseDTO>> {
-    return this.deps.projectRepository.findPaginatedByUser(userId, filters);
+    return this.deps.projectRepository.findByUser(userId, filters);
   }
 
   async findDeleted(
@@ -107,8 +108,12 @@ export class ProjectService implements IProjectService {
     return this.deps.taskService.findByProject(data.targetProjectId, filters);
   }
 
-  async findByUser(userId: string): Promise<ProjectResponseDTO[]> {
-    return this.deps.projectRepository.findByUser(userId);
+  async findByUser(userId: string, filters: FindProjectsFiltersDTO): Promise<PaginatedResponse<ProjectResponseDTO>> {
+    return this.deps.projectRepository.findByUser(userId, filters);
+  }
+
+  async findAllByUser(userId: string): Promise<ProjectResponseDTO[]> {
+    return this.deps.projectRepository.findAllByUser(userId);
   }
 
   async update(data: UpdateProjectWithAuthDTO): Promise<ProjectResponseDTO> {

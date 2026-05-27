@@ -4,7 +4,7 @@ export type CreateUserDTO = { name: string; email: string; password: string; rol
 
 export type UpdateUserDTO = Partial<{ name: string; email: string; password: string }>;
 
-export type UpdateUserPersistenceDTO = UpdateUserDTO & Partial<{ deletedAt: Date }>;
+export type UpdateUserPersistenceDTO = UpdateUserDTO & Partial<{ deletedAt: Date | null }>;
 
 export type UserResponseDTO = {
   id: string;
@@ -14,11 +14,33 @@ export type UserResponseDTO = {
   emailVerifiedAt: Date | null;
 };
 
+export type FindUsersFiltersDTO = {
+  page: number;
+  limit: number;
+  emailVerified?: boolean;
+};
+
 export type DeleteUserDTO = { targetUserId: string; authenticatedUserId: string; authenticatedUserRole: UserRole };
+
+export type FindUserWithAuthDTO = {
+  targetUserId: string;
+  authenticatedUserId: string;
+  authenticatedUserRole: UserRole;
+};
 
 export type UpdateUserWithAuthDTO = {
   targetUserId: string;
   authenticatedUserId: string;
   authenticatedUserRole: UserRole;
   data: UpdateUserDTO;
+};
+
+export type UpdatePasswordDTO = {
+  currentPassword: string;
+  newPassword: string;
+};
+
+export type UpdatePasswordWithAuthDTO = {
+  authenticatedUserId: string;
+  data: UpdatePasswordDTO;
 };
