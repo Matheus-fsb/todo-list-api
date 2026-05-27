@@ -23,7 +23,7 @@ export class UserNotificationService extends NotificationService implements IUse
 
       <p>Clique no botão abaixo para verificar sua conta:</p>
 
-      <a
+      <a 
         href="${verificationUrl}"
         style="
           display: inline-block;
@@ -43,7 +43,7 @@ export class UserNotificationService extends NotificationService implements IUse
   `;
 
     return this.sendNotification({
-      name: user.name,
+      name: user.name, 
       email: user.email,
       message: html,
       subject: `Verificação de Email de ${user.name}`,
@@ -53,9 +53,9 @@ export class UserNotificationService extends NotificationService implements IUse
 
   async createWelcomeNotification(user: NotificationRecipientDTO): Promise<NotificationDTO> {
     return this.sendNotification({
-      name: user.name,
+      name: user.name, 
       email: user.email,
-      message: 'Quero te agradecer por registrar sua conta e ser mais um dos nossos!',
+      message: `Quero te agradecer por registrar sua conta e ser mais um dos nossos!`,
       subject: `Bem-vindo ao To-Do List, ${user.name}`,
       notificationType: NotificationType.WELCOME_MESSAGE,
     });

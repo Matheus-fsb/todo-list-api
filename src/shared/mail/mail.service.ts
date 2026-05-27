@@ -29,6 +29,10 @@ export class MailService {
   }
 
   send(mail: MailDTO) {
+    if (process.env.NODE_ENV === 'test') {
+      return Promise.resolve({ accepted: [mail.to], rejected: [] });
+    }
+
     return this.transport.sendMail({
       from: this.from,
       to: mail.to,

@@ -1,0 +1,79 @@
+.hero {
+  padding: 5rem 0 4rem;
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.owner {
+  margin: 0 0 0.75rem;
+  color: #93c5fd;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.title {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  max-width: 760px;
+  font-size: 1.25rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  color: #dbeafe;
+}
+
+.buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.main {
+  padding: 3rem 0;
+}
+
+.intro {
+  max-width: 900px;
+  margin-bottom: 2.5rem;
+}
+
+.intro p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem;
+}
+
+.grid article {
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  padding: 1.5rem;
+  background: var(--ifm-background-surface-color);
+}
+
+.rights {
+  margin-top: 2rem;
+  color: var(--ifm-color-emphasis-700);
+  font-weight: 600;
+}
+
+@media screen and (max-width: 996px) {
+  .hero {
+    padding: 3rem 0;
+  }
+
+  .title {
+    font-size: 2.25rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

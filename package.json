@@ -4,10 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "set NODE_OPTIONS=--experimental-vm-modules && npx jest",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/app.js",
     "build": "tsc",
+    "docs:start": "npm --prefix docs-site run start",
+    "docs:build": "npm --prefix docs-site run build",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

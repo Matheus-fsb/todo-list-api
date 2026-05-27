@@ -6,6 +6,7 @@ const config: JestConfigWithTsJest = {
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: { '^(\\.{1,2}/.*)\\.js$': '$1' },
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  setupFiles: ['<rootDir>/tests/setup-env.ts'],
 };
 
 export default config;
