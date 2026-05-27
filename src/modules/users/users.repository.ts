@@ -10,6 +10,7 @@ export interface IUserRepository {
   update(id: string, data: UpdateUserPersistenceDTO): Promise<User>;
   verifyEmail(id: string): Promise<User>;
   delete(id: string): Promise<User>;
+  deleteExpiredUnverifiedUsers(expiresBefore: Date): Promise<{ count: number }>;
 }
 
 export class UserRepository implements IUserRepository {
@@ -39,5 +40,9 @@ export class UserRepository implements IUserRepository {
 
   async delete(id: string): Promise<User> {
     return prisma.user.delete({ where: { id } });
+  }
+
+  async deleteExpiredUnverifiedUsers(expiresBefore: Date): Promise<{ count: number }> {
+    return prisma.user.deleteMany({ where: { emailVerified: false, createdAt: { lte: expiresBefore } } });
   }
 }

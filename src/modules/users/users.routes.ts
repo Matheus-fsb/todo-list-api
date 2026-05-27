@@ -5,8 +5,8 @@ import { UserService } from './users.service.js';
 import { UserController } from './users.controller.js';
 import { authMiddleware } from '../../middlewares/auth.middleware.js';
 import { roleMiddleware } from '../../middlewares/role.middleware.js';
-import { AuthService } from '../auth/auth.service.js';
-import { AuthRepository } from '../auth/auth.repository.js';
+import { ValidationTokenRepository } from '../validation-token/validation-token.repository.js';
+import { ValidationTokenService } from '../validation-token/validation-token.service.js';
 import { NotificationService } from '../notifications/notification.service.js';
 import { makeMailService } from '../../shared/mail/mail.factory.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
@@ -22,10 +22,14 @@ const taskRepository = new TaskRepository();
 const taskService = new TaskService({ taskRepository, projectRepository });
 const projectService = new ProjectService({ projectRepository, userRepository, taskRepository, taskService });
 const notificationService = new NotificationService(makeMailService());
-const authService = new AuthService({ userRepository, authRepository: new AuthRepository(), notificationService });
+const validationTokenService = new ValidationTokenService({
+  userRepository,
+  validationTokenRepository: new ValidationTokenRepository(),
+  notificationService,
+});
 
 const userController = new DependenceFactory(
-  { userRepository, authService, projectService },
+  { userRepository, validationTokenService, projectService },
   UserService,
   UserController,
 ).getController();

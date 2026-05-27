@@ -69,24 +69,4 @@ export class AuthController {
 
     return res.status(200).json(successResponse('Logout successful'));
   }
-
-  async validateEmail(req: Request, res: Response): Promise<Response> {
-    const { token } = req.query;
-
-    if (typeof token !== 'string') {
-      throw new AppError('Validation token is required', 400);
-    }
-
-    await this.authService.validateEmail(token);
-
-    return res.status(200).json(successResponse('Email validated successfully'));
-  }
-
-  async resendVerificationEmail(req: Request, res: Response): Promise<Response> {
-    const { email } = req.body;
-
-    await this.authService.resendVerificationEmail(email);
-
-    return res.status(200).json(successResponse('Verification email resent successfully'));
-  }
 }

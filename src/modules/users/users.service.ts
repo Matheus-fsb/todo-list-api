@@ -5,7 +5,7 @@ import { createUserSchema, updateUserSchema } from './users.schemas.js';
 import type { CreateUserDTO, DeleteUserDTO, UpdateUserWithAuthDTO, UserResponseDTO } from './users.types.js';
 
 import type { IUserRepository } from './users.repository.js';
-import type { IAuthService } from '../auth/auth.service.js';
+import type { IValidationTokenService } from '../validation-token/validation-token.service.js';
 import type { ProjectService } from '../projects/projects.service.js';
 
 export interface IUserService {
@@ -14,10 +14,15 @@ export interface IUserService {
   delete(data: DeleteUserDTO): Promise<void>;
   update(data: UpdateUserWithAuthDTO): Promise<UserResponseDTO>;
   findById(id: string): Promise<UserResponseDTO>;
-  softDelete(data: DeleteUserDTO): Promise<void>
+  softDelete(data: DeleteUserDTO): Promise<void>;
+  deleteExpiredUnverifiedUsers(): Promise<{ count: number }>;
 }
 
-type Dependencies = { userRepository: IUserRepository; authService: IAuthService, projectService: ProjectService };
+type Dependencies = {
+  userRepository: IUserRepository;
+  validationTokenService: IValidationTokenService;
+  projectService: ProjectService;
+};
 
 export class UserService implements IUserService {
   constructor(private deps: Dependencies) {}
@@ -36,7 +41,7 @@ export class UserService implements IUserService {
     const user = await this.deps.userRepository.create({ ...data, password: hashedPassword });
 
     try {
-      await this.deps.authService.generateValidationEmailToken({
+      await this.deps.validationTokenService.generateValidationEmailToken({
         id: user.id,
         name: user.name,
         email: user.email,
@@ -143,7 +148,7 @@ export class UserService implements IUserService {
     };
   }
 
-  async softDelete(data:  DeleteUserDTO): Promise<void> {
+  async softDelete(data: DeleteUserDTO): Promise<void> {
     const isSelfDelete = data.targetUserId === data.authenticatedUserId;
     const isAdmin = data.authenticatedUserRole === 'ADMIN';
 
@@ -157,16 +162,23 @@ export class UserService implements IUserService {
       throw new AppError('User not found', 404);
     }
 
-    const projects = await this.deps.projectService.findByUser(data.targetUserId)
+    const projects = await this.deps.projectService.findByUser(data.targetUserId);
 
-    for(const project of projects){
+    for (const project of projects) {
       await this.deps.projectService.softDelete({
         targetProjectId: project.id,
         authenticatedUserId: data.authenticatedUserId,
         authenticatedUserRole: data.authenticatedUserRole,
-      })
+      });
     }
 
     await this.deps.userRepository.update(data.targetUserId, { deletedAt: new Date() });
+  }
+
+  async deleteExpiredUnverifiedUsers(): Promise<{ count: number }> {
+    const expiresBefore = new Date();
+    expiresBefore.setDate(expiresBefore.getDate() - 30);
+
+    return this.deps.userRepository.deleteExpiredUnverifiedUsers(expiresBefore);
   }
 }
