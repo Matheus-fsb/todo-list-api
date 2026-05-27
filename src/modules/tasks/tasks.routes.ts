@@ -8,6 +8,7 @@ const router = Router();
 const { taskController } = makeControllers();
 
 router.post('/', authMiddleware, asyncHandler(taskController.create.bind(taskController)));
+router.post('/me', authMiddleware, asyncHandler(taskController.create.bind(taskController)));
 router.get('/me', authMiddleware, asyncHandler(taskController.findMine.bind(taskController)));
 router.get('/overdue', authMiddleware, asyncHandler(taskController.findOverdue.bind(taskController)));
 router.get(

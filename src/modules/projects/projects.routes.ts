@@ -8,6 +8,7 @@ const router = Router();
 const { projectController } = makeControllers();
 
 router.post('/', authMiddleware, asyncHandler(projectController.create.bind(projectController)));
+router.post('/me', authMiddleware, asyncHandler(projectController.create.bind(projectController)));
 router.get('/me', authMiddleware, asyncHandler(projectController.findMine.bind(projectController)));
 router.get('/deleted', authMiddleware, asyncHandler(projectController.findDeleted.bind(projectController)));
 router.get(
