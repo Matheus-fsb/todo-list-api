@@ -64,10 +64,7 @@ export class UserService implements IUserService {
   private toPaginatedResponse<T extends Parameters<UserService['toResponse']>[0]>(
     result: PaginatedResponse<T>,
   ): PaginatedResponse<UserResponseDTO> {
-    return {
-      items: result.items.map((user) => this.toResponse(user)),
-      pagination: result.pagination,
-    };
+    return { items: result.items.map((user) => this.toResponse(user)), pagination: result.pagination };
   }
 
   private async ensureUserAccess(data: FindUserWithAuthDTO, includeDeleted = false) {

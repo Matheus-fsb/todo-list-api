@@ -14,11 +14,7 @@ export type UserResponseDTO = {
   emailVerifiedAt: Date | null;
 };
 
-export type FindUsersFiltersDTO = {
-  page: number;
-  limit: number;
-  emailVerified?: boolean;
-};
+export type FindUsersFiltersDTO = { page: number; limit: number; emailVerified?: boolean };
 
 export type DeleteUserDTO = { targetUserId: string; authenticatedUserId: string; authenticatedUserRole: UserRole };
 
@@ -35,12 +31,6 @@ export type UpdateUserWithAuthDTO = {
   data: UpdateUserDTO;
 };
 
-export type UpdatePasswordDTO = {
-  currentPassword: string;
-  newPassword: string;
-};
+export type UpdatePasswordDTO = { currentPassword: string; newPassword: string };
 
-export type UpdatePasswordWithAuthDTO = {
-  authenticatedUserId: string;
-  data: UpdatePasswordDTO;
-};
+export type UpdatePasswordWithAuthDTO = { authenticatedUserId: string; data: UpdatePasswordDTO };

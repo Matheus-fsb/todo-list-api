@@ -29,6 +29,11 @@ router.get(
 router.delete('/:id', authMiddleware, asyncHandler(userController.delete.bind(userController)));
 router.patch('/:id', authMiddleware, asyncHandler(userController.update.bind(userController)));
 router.patch('/:id/soft-delete', authMiddleware, asyncHandler(userController.softDelete.bind(userController)));
-router.patch('/:id/restore', authMiddleware, roleMiddleware(['ADMIN']), asyncHandler(userController.restore.bind(userController)));
+router.patch(
+  '/:id/restore',
+  authMiddleware,
+  roleMiddleware(['ADMIN']),
+  asyncHandler(userController.restore.bind(userController)),
+);
 
 export default router;

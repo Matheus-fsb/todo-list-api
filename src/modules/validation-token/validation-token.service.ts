@@ -1,10 +1,10 @@
 import crypto from 'node:crypto';
 
 import { AppError } from '../../errors/AppError.js';
-import type { INotificationService } from '../notifications/notification.service.js';
 import type { IUserRepository } from '../users/users.repository.js';
 import type { IValidationTokenRepository } from './validation-token.repository.js';
 import type { ValidationEmailUserDTO } from './validation-token.types.js';
+import type { IUserNotificationService } from '../notifications/notification-user.service.js';
 
 export interface IValidationTokenService {
   generateValidationEmailToken(user: ValidationEmailUserDTO): Promise<void>;
@@ -16,7 +16,7 @@ export interface IValidationTokenService {
 type ValidationTokenDependencies = {
   userRepository: IUserRepository;
   validationTokenRepository: IValidationTokenRepository;
-  notificationService: INotificationService;
+  userNotificationService: IUserNotificationService;
 };
 
 export class ValidationTokenService implements IValidationTokenService {
@@ -29,7 +29,7 @@ export class ValidationTokenService implements IValidationTokenService {
     await this.dependencies.validationTokenRepository.create({ token, userId: user.id, expiresAt });
 
     try {
-      await this.dependencies.notificationService.verifyAccountNotification(user, token);
+      await this.dependencies.userNotificationService.verifyAccountNotification(user, token);
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error('Error sending validation email:', error.message);
@@ -74,7 +74,7 @@ export class ValidationTokenService implements IValidationTokenService {
       throw new AppError('User not found', 404);
     }
 
-    await this.dependencies.notificationService.createWelcomeNotification({ name: user.name, email: user.email });
+    await this.dependencies.userNotificationService.createWelcomeNotification({ name: user.name, email: user.email });
   }
 
   async deleteExpiredTokens(): Promise<{ count: number }> {

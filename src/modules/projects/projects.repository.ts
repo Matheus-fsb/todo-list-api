@@ -53,10 +53,7 @@ export class ProjectRepository implements IProjectRepository {
 
   async findDeleted(filters: FindProjectsFiltersDTO, userId?: string): Promise<PaginatedResponse<Project>> {
     const skip = (filters.page - 1) * filters.limit;
-    const where = {
-      deletedAt: { not: null },
-      ...(userId && { userId }),
-    };
+    const where = { deletedAt: { not: null }, ...(userId && { userId }) };
 
     const [projects, total] = await Promise.all([
       prisma.project.findMany({ where, skip, take: filters.limit, orderBy: { deletedAt: 'desc' } }),

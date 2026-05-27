@@ -26,10 +26,7 @@ export class ProjectController implements IProjectController {
   private parseProjectFilters(req: Request): FindProjectsFiltersDTO {
     const { page, limit } = req.query;
 
-    const filters = {
-      page: Number(page) || 1,
-      limit: Number(limit) || 10,
-    };
+    const filters = { page: Number(page) || 1, limit: Number(limit) || 10 };
 
     if (filters.page < 1) {
       throw new AppError('Invalid page', 400);
@@ -53,10 +50,7 @@ export class ProjectController implements IProjectController {
       throw new AppError('Invalid priority', 400);
     }
 
-    const filters: FindTasksFiltersDTO = {
-      page: Number(page) || 1,
-      limit: Number(limit) || 10,
-    };
+    const filters: FindTasksFiltersDTO = { page: Number(page) || 1, limit: Number(limit) || 10 };
 
     if (filters.page < 1) {
       throw new AppError('Invalid page', 400);
@@ -82,10 +76,7 @@ export class ProjectController implements IProjectController {
       throw new AppError('Unauthorized', 401);
     }
 
-    const project = await this.projectService.create({
-      authenticatedUserId: req.user.id,
-      data: req.body,
-    });
+    const project = await this.projectService.create({ authenticatedUserId: req.user.id, data: req.body });
 
     return res.status(201).json(successResponse('Project created successfully', project));
   }
@@ -142,11 +133,7 @@ export class ProjectController implements IProjectController {
     }
 
     const tasks = await this.projectService.findTasks(
-      {
-        targetProjectId: id,
-        authenticatedUserId: req.user.id,
-        authenticatedUserRole: req.user.role,
-      },
+      { targetProjectId: id, authenticatedUserId: req.user.id, authenticatedUserRole: req.user.role },
       this.parseTaskFilters(req),
     );
 

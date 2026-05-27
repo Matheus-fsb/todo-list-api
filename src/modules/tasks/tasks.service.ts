@@ -2,6 +2,8 @@ import type { ITaskRepository } from './tasks.repository.js';
 import { AppError } from '../../errors/AppError.js';
 
 import type { IProjectRepository } from '../projects/projects.repository.js';
+import type { IUserRepository } from '../users/users.repository.js';
+import type { ITaskNotificationService } from '../notifications/notification-task.service.js';
 
 import type {
   CreateTaskDTO,
@@ -31,7 +33,12 @@ export interface ITaskService {
   softDelete(data: DeleteTaskWithAuthDTO): Promise<void>;
 }
 
-type Dependencies = { taskRepository: ITaskRepository; projectRepository: IProjectRepository };
+type Dependencies = {
+  taskRepository: ITaskRepository;
+  projectRepository: IProjectRepository;
+  userRepository: IUserRepository;
+  taskNotificationService: ITaskNotificationService;
+};
 
 function removeUndefinedFields<T extends object>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([, value]) => value !== undefined)) as T;
@@ -39,6 +46,37 @@ function removeUndefinedFields<T extends object>(data: T): T {
 
 export class TaskService implements ITaskService {
   constructor(private deps: Dependencies) {}
+
+  private async notifyTask(
+    task: TaskResponseDTO,
+    notification: (data: {
+      task: Pick<TaskResponseDTO, 'title' | 'dueDate'>;
+      user: { name: string; email: string };
+    }) => Promise<unknown>,
+  ): Promise<void> {
+    try {
+      const project = await this.deps.projectRepository.findById(task.projectId);
+
+      if (!project) {
+        return;
+      }
+
+      const user = await this.deps.userRepository.findById(project.userId);
+
+      if (!user) {
+        return;
+      }
+
+      await notification({
+        task: { title: task.title, dueDate: task.dueDate },
+        user: { name: user.name, email: user.email },
+      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error sending task notification:', error.message);
+      }
+    }
+  }
 
   private async ensureTaskAccess(data: FindTaskWithAuthDTO): Promise<TaskResponseDTO> {
     const taskExists = await this.deps.taskRepository.findById(data.targetTaskId);
@@ -83,7 +121,13 @@ export class TaskService implements ITaskService {
       throw new AppError('Due date cannot be in the past', 400);
     }
 
-    return this.deps.taskRepository.create(parsedData);
+    const task = await this.deps.taskRepository.create(parsedData);
+
+    await this.notifyTask(task, (notificationData) =>
+      this.deps.taskNotificationService.createTaskCreatedNotification(notificationData),
+    );
+
+    return task;
   }
 
   async update(data: UpdateTaskWithAuthDTO): Promise<TaskResponseDTO> {
@@ -127,13 +171,28 @@ export class TaskService implements ITaskService {
   async complete(data: FindTaskWithAuthDTO): Promise<TaskResponseDTO> {
     await this.ensureTaskAccess(data);
 
-    return this.deps.taskRepository.update(data.targetTaskId, { status: 'COMPLETED', completedAt: new Date() });
+    const task = await this.deps.taskRepository.update(data.targetTaskId, {
+      status: 'COMPLETED',
+      completedAt: new Date(),
+    });
+
+    await this.notifyTask(task, (notificationData) =>
+      this.deps.taskNotificationService.createTaskCompletedNotification(notificationData),
+    );
+
+    return task;
   }
 
   async reopen(data: FindTaskWithAuthDTO): Promise<TaskResponseDTO> {
     await this.ensureTaskAccess(data);
 
-    return this.deps.taskRepository.update(data.targetTaskId, { status: 'PENDING', completedAt: null });
+    const task = await this.deps.taskRepository.update(data.targetTaskId, { status: 'PENDING', completedAt: null });
+
+    await this.notifyTask(task, (notificationData) =>
+      this.deps.taskNotificationService.createTaskReopenedNotification(notificationData),
+    );
+
+    return task;
   }
 
   async delete(data: DeleteTaskWithAuthDTO): Promise<void> {

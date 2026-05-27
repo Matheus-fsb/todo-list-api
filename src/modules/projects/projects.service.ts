@@ -15,6 +15,7 @@ import type { ITaskRepository } from '../tasks/tasks.repository.js';
 import type { ITaskService } from '../tasks/tasks.service.js';
 import type { PaginatedResponse } from '../../shared/types/pagination.types.js';
 import type { FindTasksFiltersDTO, TaskResponseDTO } from '../tasks/tasks.types.js';
+import type { IProjectNotificationService } from '../notifications/notification-project.service.js';
 
 export interface IProjectService {
   create(data: CreateProjectWithAuthDTO): Promise<ProjectResponseDTO>;
@@ -39,6 +40,7 @@ type Dependencies = {
   userRepository: IUserRepository;
   taskRepository: ITaskRepository;
   taskService: ITaskService;
+  projectNotificationService: IProjectNotificationService;
 };
 
 function removeUndefinedFields<T extends object>(data: T): T {
@@ -47,6 +49,31 @@ function removeUndefinedFields<T extends object>(data: T): T {
 
 export class ProjectService implements IProjectService {
   constructor(private deps: Dependencies) {}
+
+  private async notifyProject(
+    project: ProjectResponseDTO,
+    notification: (data: {
+      project: Pick<ProjectResponseDTO, 'name'>;
+      user: { name: string; email: string };
+    }) => Promise<unknown>,
+  ): Promise<void> {
+    try {
+      const user = await this.deps.userRepository.findById(project.userId);
+
+      if (!user) {
+        return;
+      }
+
+      await notification({
+        project: { name: project.name },
+        user: { name: user.name, email: user.email },
+      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error sending project notification:', error.message);
+      }
+    }
+  }
 
   private async ensureProjectAccess(data: FindProjectWithAuthDTO, includeDeleted = false): Promise<ProjectResponseDTO> {
     const projectExists = includeDeleted
@@ -78,7 +105,13 @@ export class ProjectService implements IProjectService {
       throw new AppError('User not found', 404);
     }
 
-    return this.deps.projectRepository.create(parsedData);
+    const project = await this.deps.projectRepository.create(parsedData);
+
+    await this.notifyProject(project, (notificationData) =>
+      this.deps.projectNotificationService.createProjectCreatedNotification(notificationData),
+    );
+
+    return project;
   }
 
   async findById(data: FindProjectWithAuthDTO): Promise<ProjectResponseDTO> {
@@ -127,13 +160,17 @@ export class ProjectService implements IProjectService {
   }
 
   async delete(data: DeleteProjectWithAuthDTO): Promise<void> {
-    await this.ensureProjectAccess(data);
+    const project = await this.ensureProjectAccess(data);
 
     await this.deps.projectRepository.delete(data.targetProjectId);
+
+    await this.notifyProject(project, (notificationData) =>
+      this.deps.projectNotificationService.createProjectDeletedNotification(notificationData),
+    );
   }
 
   async softDelete(data: DeleteProjectWithAuthDTO): Promise<void> {
-    await this.ensureProjectAccess(data);
+    const project = await this.ensureProjectAccess(data);
 
     const tasks = await this.deps.taskService.findAllByProject(data.targetProjectId);
 
@@ -146,11 +183,21 @@ export class ProjectService implements IProjectService {
     }
 
     await this.deps.projectRepository.update(data.targetProjectId, { deletedAt: new Date() });
+
+    await this.notifyProject(project, (notificationData) =>
+      this.deps.projectNotificationService.createProjectDeletedNotification(notificationData),
+    );
   }
 
   async restore(data: FindProjectWithAuthDTO): Promise<ProjectResponseDTO> {
     await this.ensureProjectAccess(data, true);
 
-    return this.deps.projectRepository.update(data.targetProjectId, { deletedAt: null });
+    const project = await this.deps.projectRepository.update(data.targetProjectId, { deletedAt: null });
+
+    await this.notifyProject(project, (notificationData) =>
+      this.deps.projectNotificationService.createProjectRestoredNotification(notificationData),
+    );
+
+    return project;
   }
 }

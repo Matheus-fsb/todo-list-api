@@ -1,5 +1,8 @@
 import { AuthService } from '../../modules/auth/auth.service.js';
 import { NotificationService } from '../../modules/notifications/notification.service.js';
+import { ProjectNotificationService } from '../../modules/notifications/notification-project.service.js';
+import { TaskNotificationService } from '../../modules/notifications/notification-task.service.js';
+import { UserNotificationService } from '../../modules/notifications/notification-user.service.js';
 import { ProjectRepository } from '../../modules/projects/projects.repository.js';
 import { ProjectService } from '../../modules/projects/projects.service.js';
 import { TaskRepository } from '../../modules/tasks/tasks.repository.js';
@@ -15,14 +18,29 @@ export function makeServices() {
   const projectRepository = new ProjectRepository();
   const taskRepository = new TaskRepository();
   const validationTokenRepository = new ValidationTokenRepository();
-  const notificationService = new NotificationService(makeMailService());
+  const mailService = makeMailService();
+  const notificationService = new NotificationService(mailService);
+  const userNotificationService = new UserNotificationService(mailService);
+  const taskNotificationService = new TaskNotificationService(mailService);
+  const projectNotificationService = new ProjectNotificationService(mailService);
 
-  const taskService = new TaskService({ taskRepository, projectRepository });
-  const projectService = new ProjectService({ projectRepository, userRepository, taskRepository, taskService });
+  const taskService = new TaskService({
+    taskRepository,
+    projectRepository,
+    userRepository,
+    taskNotificationService,
+  });
+  const projectService = new ProjectService({
+    projectRepository,
+    userRepository,
+    taskRepository,
+    taskService,
+    projectNotificationService,
+  });
   const validationTokenService = new ValidationTokenService({
     userRepository,
     validationTokenRepository,
-    notificationService,
+    userNotificationService,
   });
   const userService = new UserService({ userRepository, validationTokenService, projectService });
   const authService = new AuthService({ userRepository });
@@ -33,6 +51,9 @@ export function makeServices() {
     taskRepository,
     validationTokenRepository,
     notificationService,
+    userNotificationService,
+    taskNotificationService,
+    projectNotificationService,
     taskService,
     projectService,
     validationTokenService,

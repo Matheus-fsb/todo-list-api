@@ -27,17 +27,11 @@ export class UserController implements IUserController {
   private parseFilters(req: Request): FindUsersFiltersDTO {
     const { page, limit, emailVerified } = req.query;
 
-    if (
-      emailVerified &&
-      (Array.isArray(emailVerified) || !['true', 'false'].includes(String(emailVerified)))
-    ) {
+    if (emailVerified && (Array.isArray(emailVerified) || !['true', 'false'].includes(String(emailVerified)))) {
       throw new AppError('Invalid emailVerified', 400);
     }
 
-    const filters: FindUsersFiltersDTO = {
-      page: Number(page) || 1,
-      limit: Number(limit) || 10,
-    };
+    const filters: FindUsersFiltersDTO = { page: Number(page) || 1, limit: Number(limit) || 10 };
 
     if (filters.page < 1) {
       throw new AppError('Invalid page', 400);
@@ -101,10 +95,7 @@ export class UserController implements IUserController {
       throw new AppError('Unauthorized', 401);
     }
 
-    await this.userService.updatePassword({
-      authenticatedUserId: req.user.id,
-      data: req.body,
-    });
+    await this.userService.updatePassword({ authenticatedUserId: req.user.id, data: req.body });
 
     return res.status(200).json(successResponse('Password updated successfully'));
   }
