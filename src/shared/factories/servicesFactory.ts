@@ -1,3 +1,4 @@
+import { AuthService } from '../../modules/auth/auth.service.js';
 import { NotificationService } from '../../modules/notifications/notification.service.js';
 import { ProjectRepository } from '../../modules/projects/projects.repository.js';
 import { ProjectService } from '../../modules/projects/projects.service.js';
@@ -24,6 +25,7 @@ export function makeServices() {
     notificationService,
   });
   const userService = new UserService({ userRepository, validationTokenService, projectService });
+  const authService = new AuthService({ userRepository });
 
   return {
     userRepository,
@@ -35,5 +37,6 @@ export function makeServices() {
     projectService,
     validationTokenService,
     userService,
+    authService,
   };
 }
