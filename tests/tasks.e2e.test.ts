@@ -52,13 +52,17 @@ describe('Main API flows e2e', () => {
   it('registers, verifies and authenticates a user', async () => {
     const createdUser = await request(app)
       .post('/users')
-      .send({ name: 'E2E User', email, password });
+      .send({ name: 'E2E User', email, password, role: 'ADMIN' });
 
     expect(createdUser.status).toBe(201);
     expect(createdUser.body.data.password).toBeUndefined();
     expect(createdUser.body.data.emailVerified).toBe(false);
 
     userId = createdUser.body.data.id;
+
+    const userInDatabase = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+
+    expect(userInDatabase.role).toBe('USER');
 
     const blockedLogin = await userAgent.post('/auth/login').send({ email, password });
 
@@ -250,5 +254,11 @@ describe('Main API flows e2e', () => {
 
     expect(restoredUser.status).toBe(200);
     expect(restoredUser.body.data.id).toBe(userId);
+  });
+
+  it('does not allow regular users to hard delete users by id', async () => {
+    const hardDelete = await userAgent.delete(`/users/${userId}`);
+
+    expect(hardDelete.status).toBe(403);
   });
 });

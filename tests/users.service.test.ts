@@ -28,6 +28,34 @@ function makeService(overrides: Record<string, unknown> = {}) {
 }
 
 describe('UserService', () => {
+  it('creates public users with the default repository payload, without accepting role input', async () => {
+    const { service, userRepository } = makeService({
+      findByEmail: jest.fn(async () => null),
+      create: jest.fn(async (data: any) => ({
+        id: 'user-1',
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: 'USER',
+        emailVerified: false,
+        emailVerifiedAt: null,
+      })),
+    });
+
+    await service.create({
+      name: 'Matheus',
+      email: 'matheus@example.com',
+      password: 'password-10',
+      role: 'ADMIN',
+    } as any);
+
+    expect(userRepository.create).toHaveBeenCalledWith(
+      expect.not.objectContaining({
+        role: 'ADMIN',
+      }),
+    );
+  });
+
   it('does not allow email updates through the general update method', async () => {
     const { service } = makeService();
 

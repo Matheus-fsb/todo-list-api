@@ -87,17 +87,17 @@ export class UserService implements IUserService {
   }
 
   async create(data: CreateUserDTO): Promise<UserResponseDTO> {
-    createUserSchema.parse(data);
+    const parsedData = createUserSchema.parse(data);
 
-    const userExists = await this.deps.userRepository.findByEmail(data.email);
+    const userExists = await this.deps.userRepository.findByEmail(parsedData.email);
 
     if (userExists) {
       throw new AppError('User already exists', 409);
     }
 
-    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const hashedPassword = await bcrypt.hash(parsedData.password, 10);
 
-    const user = await this.deps.userRepository.create({ ...data, password: hashedPassword });
+    const user = await this.deps.userRepository.create({ ...parsedData, password: hashedPassword });
 
     try {
       await this.deps.validationTokenService.generateValidationEmailToken({
