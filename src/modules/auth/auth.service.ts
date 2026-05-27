@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import jwt, { type SignOptions, type Secret } from 'jsonwebtoken';
 
 import type { AuthDependencies, AuthResponseDTO, JwtPayload, LoginDTO, TokenPairDTO } from './auth.types.js';

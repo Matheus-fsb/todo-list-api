@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { AppError } from '../../errors/AppError.js';
-import { createUserSchema, updateUserSchema } from './users.schemas.js';
+import { createUserSchema, updatePasswordSchema, updateUserSchema } from './users.schemas.js';
 
 import type {
   CreateUserDTO,
@@ -8,6 +8,7 @@ import type {
   FindUserWithAuthDTO,
   FindUsersFiltersDTO,
   UpdatePasswordWithAuthDTO,
+  UpdateUserPersistenceDTO,
   UpdateUserWithAuthDTO,
   UserResponseDTO,
 } from './users.types.js';
@@ -36,6 +37,10 @@ type Dependencies = {
   validationTokenService: IValidationTokenService;
   projectService: ProjectService;
 };
+
+function removeUndefinedFields<T extends object>(data: T): T {
+  return Object.fromEntries(Object.entries(data).filter(([, value]) => value !== undefined)) as T;
+}
 
 export class UserService implements IUserService {
   constructor(private deps: Dependencies) {}
@@ -120,43 +125,30 @@ export class UserService implements IUserService {
   }
 
   async update(data: UpdateUserWithAuthDTO): Promise<UserResponseDTO> {
-    updateUserSchema.parse(data.data);
+    const parsedData = removeUndefinedFields(updateUserSchema.parse(data.data)) as UpdateUserPersistenceDTO;
 
-    const userExists = await this.ensureUserAccess(data);
+    await this.ensureUserAccess(data);
 
-    if (data.data.email && data.data.email !== userExists.email) {
-      const emailInUse = await this.deps.userRepository.findByEmail(data.data.email);
-
-      if (emailInUse) {
-        throw new AppError('Email already in use', 409);
-      }
-    }
-
-    const dataToUpdate = { ...data.data };
-
-    if (data.data.password) {
-      dataToUpdate.password = await bcrypt.hash(data.data.password, 10);
-    }
-
-    const updatedUser = await this.deps.userRepository.update(data.targetUserId, dataToUpdate);
+    const updatedUser = await this.deps.userRepository.update(data.targetUserId, parsedData);
 
     return this.toResponse(updatedUser);
   }
 
   async updatePassword(data: UpdatePasswordWithAuthDTO): Promise<void> {
+    const parsedData = updatePasswordSchema.parse(data.data);
     const user = await this.deps.userRepository.findById(data.authenticatedUserId);
 
     if (!user) {
       throw new AppError('User not found', 404);
     }
 
-    const passwordMatches = await bcrypt.compare(data.data.currentPassword, user.password);
+    const passwordMatches = await bcrypt.compare(parsedData.currentPassword, user.password);
 
     if (!passwordMatches) {
       throw new AppError('Current password invalid', 401);
     }
 
-    const hashedPassword = await bcrypt.hash(data.data.newPassword, 10);
+    const hashedPassword = await bcrypt.hash(parsedData.newPassword, 10);
 
     await this.deps.userRepository.update(data.authenticatedUserId, { password: hashedPassword });
   }
