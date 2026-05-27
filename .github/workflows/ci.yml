@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+
+jobs:
+  test-and-build:
+    name: Testes e build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: todo_user
+          POSTGRES_PASSWORD: todo_password
+          POSTGRES_DB: todo_list_api
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U todo_user -d todo_list_api"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      NODE_ENV: test
+      PORT: 3000
+      DATABASE_URL: postgresql://todo_user:todo_password@localhost:5432/todo_list_api
+      DIRECT_URL: postgresql://todo_user:todo_password@localhost:5432/todo_list_api
+      JWT_ACCESS_SECRET: ci_access_secret_com_tamanho_suficiente
+      JWT_REFRESH_SECRET: ci_refresh_secret_com_tamanho_suficiente
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+      MAIL_HOST: localhost
+      MAIL_PORT: 587
+      MAIL_USER: test
+      MAIL_PASS: test
+      MAIL_FROM: test@example.com
+      APP_URL: http://localhost:3000
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Instalar dependências da documentação
+        run: npm ci
+        working-directory: docs-site
+
+      - name: Gerar Prisma Client
+        run: npx prisma generate
+
+      - name: Rodar migrations
+        run: npx prisma migrate deploy
+
+      - name: Rodar testes
+        run: npm test
+
+      - name: Compilar API
+        run: npm run build
+
+      - name: Compilar documentação
+        run: npm run docs:build
