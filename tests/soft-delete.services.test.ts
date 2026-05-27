@@ -18,16 +18,10 @@ describe('soft delete services', () => {
       findById: jest.fn(async (_id: string) => ({ id: 'task-1', projectId: 'project-1' })),
       update: jest.fn(async (_id: string, _data: object) => ({ id: 'task-1' })),
     };
-    const projectRepository = {
-      findById: jest.fn(async (_id: string) => ({ id: 'project-1', userId: 'user-1' })),
-    };
+    const projectRepository = { findById: jest.fn(async (_id: string) => ({ id: 'project-1', userId: 'user-1' })) };
     const service = new TaskService({ taskRepository, projectRepository } as any);
 
-    await service.softDelete({
-      targetTaskId: 'task-1',
-      authenticatedUserId: 'user-1',
-      authenticatedUserRole: 'USER',
-    });
+    await service.softDelete({ targetTaskId: 'task-1', authenticatedUserId: 'user-1', authenticatedUserRole: 'USER' });
 
     expect(taskRepository.update).toHaveBeenCalledWith('task-1', { deletedAt: new Date() });
   });
@@ -77,17 +71,9 @@ describe('soft delete services', () => {
       findByUser: jest.fn(async (_userId: string) => [{ id: 'project-1' }, { id: 'project-2' }]),
       softDelete: jest.fn(async (_data: object) => undefined),
     };
-    const service = new UserService({
-      userRepository,
-      authService: {},
-      projectService,
-    } as any);
+    const service = new UserService({ userRepository, authService: {}, projectService } as any);
 
-    await service.softDelete({
-      targetUserId: 'user-1',
-      authenticatedUserId: 'user-1',
-      authenticatedUserRole: 'USER',
-    });
+    await service.softDelete({ targetUserId: 'user-1', authenticatedUserId: 'user-1', authenticatedUserRole: 'USER' });
 
     expect(projectService.softDelete).toHaveBeenCalledTimes(2);
     expect(projectService.softDelete).toHaveBeenCalledWith({

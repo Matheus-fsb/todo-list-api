@@ -12,6 +12,12 @@ export type CreateTaskDTO = {
   dueDate?: Date | null;
 };
 
+export type CreateTaskWithAuthDTO = {
+  authenticatedUserId: string;
+  authenticatedUserRole: UserRole;
+  data: CreateTaskDTO;
+};
+
 export type UpdateTaskDTO = Partial<{
   title: string;
   description: string;
@@ -47,3 +53,11 @@ export type DeleteTaskWithAuthDTO = {
   authenticatedUserId: string;
   authenticatedUserRole: UserRole;
 };
+
+export type FindTaskWithAuthDTO = {
+  targetTaskId: string;
+  authenticatedUserId: string;
+  authenticatedUserRole: UserRole;
+};
+
+export type FindTasksFiltersDTO = { page: number; limit: number; status?: Status; priority?: Priority };
