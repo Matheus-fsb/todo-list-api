@@ -74,7 +74,7 @@ jobs:
         run: npm run build
 
       - name: Compilar documentação
-        run: npm run docs:build
+        run: npm run docs-build
 
   deploy-production:
     name: Deploy em produção
