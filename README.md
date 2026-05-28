@@ -1,4 +1,4 @@
-# Todo List API
+# Todo List API 1.0.0
 
 API REST para gerenciamento de usuários, projetos e tarefas, com autenticação JWT, verificação de email, controle de acesso por perfil, paginação, filtros, soft delete e testes automatizados.
 
@@ -53,19 +53,19 @@ Crie um arquivo `.env` na raiz do projeto e configure as variáveis abaixo:
 | Variável | Obrigatória | Exemplo local | Descrição |
 | --- | --- | --- | --- |
 | `PORT` | Não | `3000` | Porta em que a API será iniciada. |
-| `DATABASE_URL` | Sim | `postgresql://todo_user:todo_password@localhost:5432/todo_list_api` | URL de conexão usada pelo Prisma para acessar o PostgreSQL. |
-| `DIRECT_URL` | Sim | `postgresql://todo_user:todo_password@localhost:5432/todo_list_api` | URL direta do banco, usada em migrations e operações administrativas do Prisma. |
+| `DATABASE_URL` | Sim | `url` | URL de conexão usada pelo Prisma para acessar o PostgreSQL. |
+| `DIRECT_URL` | Sim | `url` | URL direta do banco, usada em migrations e operações administrativas do Prisma. |
 | `JWT_ACCESS_SECRET` | Sim | `valor_longo_e_aleatorio` | Chave usada para assinar o token de acesso. |
 | `JWT_REFRESH_SECRET` | Sim | `outro_valor_longo_e_aleatorio` | Chave usada para assinar o token de renovação. |
 | `JWT_ACCESS_EXPIRES_IN` | Sim | `15m` | Tempo de expiração do access token. |
 | `JWT_REFRESH_EXPIRES_IN` | Sim | `7d` | Tempo de expiração do refresh token. |
-| `MAIL_HOST` | Sim | `live.smtp.mailtrap.io` | Host SMTP usado para envio de emails. |
-| `MAIL_PORT` | Sim | `587` | Porta SMTP. |
-| `MAIL_USER` | Sim | `api` | Usuário SMTP. |
-| `MAIL_PASS` | Sim | `seu_token_mailtrap` | Senha ou token SMTP. |
+| `MAIL_HOST` | Não | `live.smtp.mailtrap.io` | Host SMTP usado para envio de emails. |
+| `MAIL_PORT` | Não | `587` | Porta SMTP. |
+| `MAIL_USER` | Não | `api` | Usuário SMTP. |
+| `MAIL_PASS` | Não | `seu_token_mailtrap` | Senha ou token SMTP. |
 | `MAIL_FROM` | Sim | `hello@demomailtrap.co` | Remetente usado nos emails enviados pela API. |
-| `MAILTRAP_API_TOKEN` | Não | `token_api_do_mailtrap` | Token da API do Mailtrap, útil em produção quando SMTP não estiver disponível. |
-| `APP_URL` | Sim | `http://localhost:3000` | URL base usada para montar links, como verificação de email. |
+| `MAILTRAP_API_TOKEN` | Sim | `token_api_do_mailtrap` | Token da API do Mailtrap, útil em produção quando SMTP não estiver disponível. |
+| `APP_URL` | Sim | `url da api` | URL base usada para montar links, como verificação de email. |
 
 Rode as migrations e gere o Prisma Client:
 
@@ -271,3 +271,4 @@ As variáveis sensíveis devem ficar no ambiente da plataforma de deploy. Não v
 ## Licença
 
 Este projeto está sob a licença MIT.
+Todos os direitos reservados a Matheus Barros
