@@ -39,7 +39,7 @@ Exemplos:
 - executar comandos de produção;
 - preparar uma imagem Docker.
 
-Neste projeto, o primeiro passo foi implementar apenas a CI. O deploy pode ser adicionado depois, quando o ambiente de produção estiver definido.
+Neste projeto, a pipeline executa CI em pushes e pull requests. O CD roda apenas quando há `push` na branch `main`.
 
 ## Workflow Criado
 
@@ -53,6 +53,7 @@ Ele roda em:
 
 - `push` para `main`;
 - `push` para `master`;
+- `push` para `develop`;
 - pull requests.
 
 ## Banco na CI
@@ -93,3 +94,55 @@ Se tudo estiver verde, significa que:
 - as migrations funcionaram no banco temporário.
 
 Se alguma etapa ficar vermelha, clique nela para ver o log do erro.
+
+## Relação Com O Deploy
+
+O fluxo recomendado para a V1.0.0 é:
+
+```txt
+develop
+  -> pull request para main
+  -> CI verde
+  -> merge na main
+  -> migrations no Neon
+  -> deploy no Render via Deploy Hook
+```
+
+O deploy de produção só roda quando o evento é:
+
+```txt
+push em main
+```
+
+## Secrets Necessários
+
+Configure estes secrets no GitHub:
+
+```txt
+Settings -> Secrets and variables -> Actions -> New repository secret
+```
+
+Secrets usados pelo CD:
+
+```txt
+PRODUCTION_DATABASE_URL
+PRODUCTION_DIRECT_URL
+RENDER_DEPLOY_HOOK_URL
+```
+
+`PRODUCTION_DATABASE_URL` e `PRODUCTION_DIRECT_URL` devem apontar para o banco do Neon.
+
+`RENDER_DEPLOY_HOOK_URL` vem do Render, na seção de deploy hook do Web Service.
+
+## Etapas Do CD
+
+Quando a `main` recebe push, o job de produção:
+
+```txt
+instala dependências
+gera Prisma Client
+roda migrations no Neon
+dispara deploy no Render
+```
+
+Com esse fluxo, o Render não precisa fazer deploy automático em todo push sozinho. O GitHub Actions vira a porta de entrada do deploy.

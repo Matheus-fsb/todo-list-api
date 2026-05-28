@@ -19,6 +19,7 @@ const sidebars: SidebarsConfig = {
     },
     'testing',
     'cicd',
+    'deploy',
     'operations',
   ],
 };

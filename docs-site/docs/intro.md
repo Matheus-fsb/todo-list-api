@@ -4,9 +4,11 @@ sidebar_position: 1
 
 # Todo List API
 
-Esta documentação apresenta a **Todo List API**, uma API REST criada por **Matheus** para organizar usuários, projetos e tarefas em um fluxo completo de produtividade.
+Esta documentação apresenta a **Todo List API V1.0.0**, uma API REST criada por **Matheus** para organizar usuários, projetos e tarefas em um fluxo completo de produtividade.
 
 O objetivo do projeto é ir além de um CRUD simples. A API foi pensada como uma base realista para praticar e demonstrar conceitos importantes de backend: autenticação, autorização, verificação de email, soft delete, paginação, filtros, notificações, testes automatizados, Docker e documentação técnica.
+
+Na V1.0.0, o projeto está preparado para deploy com **Render** como Web Service da API e **Neon** como banco PostgreSQL gerenciado.
 
 ## Proposta do Projeto
 
@@ -34,6 +36,9 @@ O sistema usa:
 - Prisma
 - PostgreSQL
 - Docker para banco local
+- Neon para banco em deploy
+- Render para hospedagem da API
+- GitHub Actions para CI
 - JWT em cookies HTTP-only
 - Nodemailer para envio de emails
 - Jest e Supertest para testes
@@ -66,6 +71,7 @@ Aqui você encontra:
 
 - Como configurar o ambiente local.
 - Como rodar o banco com Docker.
+- Como fazer deploy com Render e Neon.
 - Como configurar variáveis de ambiente.
 - Como a arquitetura do projeto está organizada.
 - Como consumir as rotas de auth, users, projects e tasks.
