@@ -85,7 +85,7 @@ jobs:
     env:
       NODE_ENV: production
       DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
-      DIRECT_URL: ${{ secrets.PRODUCTION_DIRECT_URL }}
+      DIRECT_URL: ${{ secrets.PRODUCTION_DIRECT_URL || secrets.PRODUCTION_DATABASE_URL }}
 
     steps:
       - name: Baixar código
@@ -99,6 +99,23 @@ jobs:
 
       - name: Instalar dependências
         run: npm ci
+
+      - name: Validar secrets de produção
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "PRODUCTION_DATABASE_URL não foi configurado nos secrets do GitHub."
+            exit 1
+          fi
+
+          if [ -z "$DIRECT_URL" ]; then
+            echo "PRODUCTION_DIRECT_URL ou PRODUCTION_DATABASE_URL precisa estar configurado nos secrets do GitHub."
+            exit 1
+          fi
+
+          if [ -z "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" ]; then
+            echo "RENDER_DEPLOY_HOOK_URL não foi configurado nos secrets do GitHub."
+            exit 1
+          fi
 
       - name: Gerar Prisma Client
         run: npx prisma generate
