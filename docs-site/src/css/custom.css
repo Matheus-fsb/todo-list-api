@@ -1,4 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
 :root {
+  --ifm-font-family-base: 'Inter', sans-serif;
+  --ifm-heading-font-family: 'Outfit', sans-serif;
+
+  /* Premium HSL Color Palette (Slate-Blue Accent) */
   --ifm-color-primary: #2563eb;
   --ifm-color-primary-dark: #1d4ed8;
   --ifm-color-primary-darker: #1e40af;
@@ -6,8 +12,16 @@
   --ifm-color-primary-light: #3b82f6;
   --ifm-color-primary-lighter: #60a5fa;
   --ifm-color-primary-lightest: #93c5fd;
-  --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  
+  --ifm-background-color: #f8fafc;
+  --ifm-background-surface-color: #ffffff;
+  
+  --ifm-code-font-size: 90%;
+  --docusaurus-highlighted-code-line-bg: rgba(37, 99, 235, 0.1);
+  
+  /* Layout tweaks */
+  --ifm-navbar-background-color: rgba(255, 255, 255, 0.85);
+  --ifm-navbar-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
 }
 
 [data-theme='dark'] {
@@ -18,5 +32,60 @@
   --ifm-color-primary-light: #93c5fd;
   --ifm-color-primary-lighter: #bfdbfe;
   --ifm-color-primary-lightest: #dbeafe;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  
+  --ifm-background-color: #0f172a;
+  --ifm-background-surface-color: #1e293b;
+  
+  --ifm-navbar-background-color: rgba(15, 23, 42, 0.85);
+  --ifm-navbar-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+  --docusaurus-highlighted-code-line-bg: rgba(96, 165, 250, 0.15);
+}
+
+/* Glassmorphism for Navbar */
+.navbar {
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* API Custom Badges */
+.badge-http {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-family: var(--ifm-font-family-monospace);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #fff;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.badge-get {
+  background-color: #3b82f6; /* Blue */
+}
+
+.badge-post {
+  background-color: #10b981; /* Green */
+}
+
+.badge-put {
+  background-color: #f59e0b; /* Amber */
+}
+
+.badge-patch {
+  background-color: #8b5cf6; /* Violet */
+}
+
+.badge-delete {
+  background-color: #ef4444; /* Red */
+}
+
+/* Code block adjustments */
+.markdown pre {
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
 }

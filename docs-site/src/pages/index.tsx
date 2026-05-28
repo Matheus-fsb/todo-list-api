@@ -11,52 +11,46 @@ export default function Home(): ReactNode {
       title="Documentação"
       description="Documentação completa da Todo List API desenvolvida por Matheus">
       <header className={styles.hero}>
-        <div className="container">
+        <div className={styles.heroContainer}>
           <p className={styles.owner}>Projeto desenvolvido por Matheus</p>
           <Heading as="h1" className={styles.title}>
             Todo List API
           </Heading>
           <p className={styles.subtitle}>
-            Uma API REST completa para gerenciamento de usuários, projetos e tarefas, com autenticação,
-            verificação de email, notificações, soft delete, filtros, paginação, Docker e testes automatizados.
+            Uma API REST de alta performance, modular e segura para gerenciamento de usuários, projetos e tarefas, com autenticação JWT (cookies HTTP-only), rate limiting e testes automatizados.
           </p>
           <div className={styles.buttons}>
-            <Link className="button button--primary button--lg" to="/docs/intro">
-              Abrir documentação
+            <Link className={`button button--lg ${styles.buttonPrimary}`} to="/docs/intro">
+              Começar Agora
             </Link>
-            <Link className="button button--secondary button--lg" to="/docs/api/overview">
-              Ver rotas
+            <Link className={`button button--lg ${styles.buttonSecondary}`} to="/docs/api/overview">
+              Referência da API
             </Link>
           </div>
         </div>
       </header>
       <main className={styles.main}>
-        <section className="container">
+        <section className={styles.sectionContainer}>
           <div className={styles.intro}>
-            <Heading as="h2">Sobre o projeto</Heading>
+            <Heading as="h2">Sobre o Projeto</Heading>
             <p>
-              A Todo List API foi criada para funcionar como uma base backend bem estruturada:
-              simples de entender, mas completa o bastante para representar desafios reais de uma API.
-              O projeto organiza responsabilidades por módulos, usa Prisma para persistência,
-              JWT para autenticação, emails para validação de conta e uma suíte de testes para proteger
-              os principais fluxos.
+              A Todo List API foi projetada para ir além do CRUD convencional, incorporando requisitos reais de engenharia de software de nível de produção. Construída com TypeScript, Express e Prisma ORM, ela serve como uma excelente base de referência para arquitetura modular, controle de segurança refinado e práticas robustas de teste.
             </p>
           </div>
           <div className={styles.grid}>
             <article>
-              <Heading as="h2">Configuração Local</Heading>
-              <p>Docker, PostgreSQL, Prisma migrations e comandos principais para desenvolvimento.</p>
+              <Heading as="h3">Ambiente & Setup</Heading>
+              <p>Passo a passo para rodar localmente com Docker Compose (PostgreSQL), rodar migrations do Prisma e comandos para iniciar o servidor de desenvolvimento.</p>
             </article>
             <article>
-              <Heading as="h2">API</Heading>
-              <p>Rotas de autenticação, usuários, projetos e tarefas com exemplos de payloads e query params.</p>
+              <Heading as="h3">API Referência</Heading>
+              <p>Documentação detalhada com todos os endpoints, corpos de requisição baseados em esquemas do Zod, status de respostas HTTP e controle de acesso.</p>
             </article>
             <article>
-              <Heading as="h2">Testes</Heading>
-              <p>Unitários, services e e2e com Jest, Supertest e banco local.</p>
+              <Heading as="h3">Lógica & Testes</Heading>
+              <p>Explicação das políticas de segurança, soft delete em cascata recursiva e suite de testes unitários e de integração/E2E com Jest e Supertest.</p>
             </article>
           </div>
-          <p className={styles.rights}>Todos os direitos reservados a Matheus.</p>
         </section>
       </main>
     </Layout>
