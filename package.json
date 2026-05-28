@@ -1,21 +1,21 @@
 {
-  "name": "api-crud",
+  "name": "to-do-list-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./src/server.js",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/src/server.js",
     "build": "tsc",
-    "docs:start": "npm --prefix docs-site run start",
-    "docs:build": "npm --prefix docs-site run build",
+    "docs-start": "npm --prefix docs-site run start",
+    "docs-build": "npm --prefix docs-site run build",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Matheus Barros",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
