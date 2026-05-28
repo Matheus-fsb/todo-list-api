@@ -56,11 +56,14 @@ MAIL_PORT="587"
 MAIL_USER="api"
 MAIL_PASS="token_do_mailtrap"
 MAIL_FROM="email_autorizado_no_mailtrap"
+MAILTRAP_API_TOKEN="token_api_do_mailtrap"
 
 APP_URL="https://sua-api.onrender.com"
 ```
 
 O `APP_URL` precisa apontar para a URL pública da API, porque ele é usado nos links de verificação de email.
+
+Em Web Services gratuitos do Render, prefira `MAILTRAP_API_TOKEN`, porque o envio por SMTP pode ser bloqueado nas portas 25, 465 e 587. A API do Mailtrap usa HTTPS e evita esse bloqueio.
 
 ## Segurança
 

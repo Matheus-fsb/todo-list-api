@@ -91,6 +91,14 @@ npm start
 
 As variáveis sensíveis devem ser configuradas no painel do Render. Nunca versione `.env`.
 
+Para envio de emails em produção no Render Free, use a API do Mailtrap via:
+
+```txt
+MAILTRAP_API_TOKEN
+```
+
+O SMTP pode sofrer timeout porque portas como 25, 465 e 587 podem ser bloqueadas em serviços gratuitos.
+
 Secrets necessários no GitHub Actions:
 
 ```txt

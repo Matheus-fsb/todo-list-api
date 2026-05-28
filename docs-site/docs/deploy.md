@@ -83,10 +83,13 @@ MAIL_PORT="587"
 MAIL_USER="api"
 MAIL_PASS="token_do_mailtrap"
 MAIL_FROM="email_autorizado"
+MAILTRAP_API_TOKEN="token_api_do_mailtrap"
 APP_URL="https://sua-api.onrender.com"
 ```
 
 O Render define `PORT` automaticamente. A API já lê `process.env.PORT`.
+
+Para produção no Render Free, use `MAILTRAP_API_TOKEN`. O envio por SMTP nas portas 25, 465 e 587 pode sofrer bloqueio de rede em serviços gratuitos.
 
 ## Deploy Hook Do Render
 

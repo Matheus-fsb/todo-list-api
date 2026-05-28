@@ -3,6 +3,7 @@ import jwt, { type SignOptions, type Secret } from 'jsonwebtoken';
 
 import type { AuthDependencies, AuthResponseDTO, JwtPayload, LoginDTO, TokenPairDTO } from './auth.types.js';
 import { AppError } from '../../errors/AppError.js';
+import { loginSchema } from './auth.schemas.js';
 
 export interface IAuthService {
   login(data: LoginDTO): Promise<AuthResponseDTO>;
@@ -13,13 +14,19 @@ export class AuthService implements IAuthService {
   constructor(private dependencies: AuthDependencies) {}
 
   async login(data: LoginDTO): Promise<AuthResponseDTO> {
-    const user = await this.dependencies.userRepository.findByEmail(data.email);
+    const parsedData = loginSchema.parse(data);
+
+    const user = await this.dependencies.userRepository.findByEmail(parsedData.email);
 
     if (!user) {
       throw new AppError('Email or password invalid', 401);
     }
 
-    const passwordMatches = await bcrypt.compare(data.password, user.password);
+    if (typeof user.password !== 'string') {
+      throw new AppError('Email or password invalid', 401);
+    }
+
+    const passwordMatches = await bcrypt.compare(parsedData.password, user.password);
 
     if (!passwordMatches) {
       throw new AppError('Email or password invalid', 401);
