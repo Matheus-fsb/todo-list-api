@@ -25,6 +25,9 @@ export class MailService {
       host: this.host,
       port: this.port,
       auth: { user: this.user, pass: this.password },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     });
   }
 

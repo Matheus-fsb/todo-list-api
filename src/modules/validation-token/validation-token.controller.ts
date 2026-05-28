@@ -22,6 +22,10 @@ export class ValidationTokenController {
   async resendVerificationEmail(req: Request, res: Response): Promise<Response> {
     const { email } = req.body;
 
+    if (typeof email !== 'string') {
+      throw new AppError('Email is required', 400);
+    }
+
     await this.validationTokenService.resendVerificationEmail(email);
 
     return res.status(200).json(successResponse('Verification email resent successfully'));
